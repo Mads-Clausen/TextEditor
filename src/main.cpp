@@ -8,6 +8,7 @@ TextEditorWindow teWin;
 int main(int argc, char **argv)
 {
     GraphicsManager::init(800, 600);
+    teWin.init();
 
     for(bool running = true; running;)
     {
