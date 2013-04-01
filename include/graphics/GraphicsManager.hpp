@@ -13,13 +13,7 @@ class GraphicsManager
         /**
          * The SDL_Surface used for rendering(global).
          */
-        static SDL_Surface *screen;
-
-        /**
-         * The SDL_Surface used for "local" rendering.
-         */
-        SDL_Surface *target;
-
+        static SDL_Surface *_screen;
 
     public:
         /**
@@ -28,9 +22,32 @@ class GraphicsManager
         GraphicsManager();
 
         /**
-         * Renders to the static rendertarget(GraphicsManager::screen).
+         * Renders to the global rendertarget.
          */
-        virtual void render() {}
+        virtual void render();
+
+        /**
+         * Sets the global rendertaget. NOT TO BE OVERWRITTEN.
+         *
+         * @param target The new rendertarget.
+         */
+        void setGlobalRendertarget(SDL_Surface *target)
+        {
+            _screen = target;
+        }
+
+        /**
+         * Initialises the global rendertarget.
+         *
+         * @param scrWidth The width of the global rendertarget(width of the window).
+         * @param scrHeight The height of the global rendertarget(height of the window).
+         */
+        static void init(int scrWidth, int scrHeight);
+
+        /**
+         * Destroys the global rendertarget.
+         */
+        static void destroy();
 };
 
 #endif // GRAPHICSMANAGER_INCLUDED
