@@ -32,7 +32,14 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
-		<Unit filename="main.cpp" />
+		<Unit filename="include/graphics/Drawable.hpp" />
+		<Unit filename="include/graphics/GraphicsManager.hpp" />
+		<Unit filename="include/graphics/TextEditorWindow.hpp" />
+		<Unit filename="include/text/TextUtils.hpp" />
+		<Unit filename="src/graphics/GraphicsManager.cpp" />
+		<Unit filename="src/graphics/TextEditorWindow.cpp" />
+		<Unit filename="src/main.cpp" />
+		<Unit filename="src/text/TextUtils.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

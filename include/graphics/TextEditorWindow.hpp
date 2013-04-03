@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "graphics/GraphicsManager.hpp"
+#include "text/TextUtils.hpp"
 
 class TextEditorWindow : public GraphicsManager
 {
