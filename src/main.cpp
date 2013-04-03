@@ -13,7 +13,10 @@ int main(int argc, char **argv)
 {
     GraphicsManager::init(800, 600);
     teWin.init();
-    std::cout << "Done initing" << std::endl;
+
+    graphics::ColorScheme sc;
+    sc.load("colorschemes/default.lua");
+    text::TextUtils::setColorScheme(sc);
 
     std::string test("for(unsigned int i = 0; i < something; ++i)");
     std::vector<const char*> keywords;
@@ -21,8 +24,9 @@ int main(int argc, char **argv)
     keywords.push_back("unsigned");
     keywords.push_back("int");
 
-    TextUtils::applySyntaxHighlighting(test, keywords);
-    std::cout << test.c_str() << std::endl;
+    text::TextUtils::applySyntaxHighlighting(test, keywords);
+    std::vector<text::EditorChar> chars = text::TextUtils::getEditorCharVector(test);
+    text::TextUtils::printEditorChars(chars);
 
     for(bool running = true; running;)
     {

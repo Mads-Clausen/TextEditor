@@ -2,11 +2,13 @@
 #define EDITORCHAR_INCLUDED
 
 #include "graphics/Color.hpp"
-
-struct EditorChar
+namespace text
 {
-    Color fgColor, bgColor;
-    char content;
-};
+    struct EditorChar
+    {
+        graphics::Color fgColor, bgColor;
+        char content;
+    };
+}
 
 #endif // EDITORCHAR_INCLUDED

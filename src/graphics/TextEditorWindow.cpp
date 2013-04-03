@@ -36,7 +36,7 @@ void TextEditorWindow::onKeyDown(SDLKey &key, bool dir)
 
     std::string kName(SDL_GetKeyName(key));
     if(_capslock)
-        TextUtils::toUppercase(kName);
+        text::TextUtils::toUppercase(kName);
 
     if(dir) // DOWN
     {
