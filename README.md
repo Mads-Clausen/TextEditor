@@ -17,7 +17,8 @@ How to compile on any platform(assuming you have Code::Blocks installed
 and cofigured, and that you have install SDL correctly)
 
 - Open the TextEditor.cbp in Code::Blocks
-- Check in the "Compiler & Debugger" settings, that it has these compiler options: "-std=c++11", and these linker options: "-lSDL -lSDLmain".
+- Check in the "Compiler & Debugger" settings, that it has these compiler options: "-std=c++11", and these 
+ 	linker options: "-lSDL -lSDLmain".
 - Press "Build"
 - Run the executable produced by Code::Blocks. You will have to copy colorschemes/ into the folder with the executable,
 	or add colorschemes/ parent folder to your system path.
