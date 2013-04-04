@@ -6,6 +6,7 @@
 #include "graphics/GraphicsManager.hpp"
 #include "graphics/TextEditorWindow.hpp"
 #include "text/TextUtils.hpp"
+using namespace text::TextUtils;
 
 TextEditorWindow teWin;
 
@@ -15,8 +16,8 @@ int main(int argc, char **argv)
     teWin.init();
 
     graphics::ColorScheme sc;
-    sc.load("colorschemes/default.lua");
-    text::TextUtils::setColorScheme(sc);
+    sc.load("colorschemes/default.csch");
+    setColorScheme(sc);
 
     std::string test("for(unsigned int i = 0; i < something; ++i)");
     std::vector<const char*> keywords;
@@ -24,9 +25,9 @@ int main(int argc, char **argv)
     keywords.push_back("unsigned");
     keywords.push_back("int");
 
-    text::TextUtils::applySyntaxHighlighting(test, keywords);
-    std::vector<text::EditorChar> chars = text::TextUtils::getEditorCharVector(test);
-    text::TextUtils::printEditorChars(chars);
+    applySyntaxHighlighting(test, keywords);
+    std::vector<text::EditorChar> chars = getEditorCharVector(test);
+    printEditorChars(chars);
 
     for(bool running = true; running;)
     {
@@ -36,15 +37,17 @@ int main(int argc, char **argv)
         {
             switch (event.type) {
                 case SDL_KEYDOWN:
-                    teWin.onKeyDown(event.key.keysym.sym, true);
+                    teWin.onKeyEvent(event.key, true);
                     break;
                 case SDL_KEYUP:
-                    teWin.onKeyDown(event.key.keysym.sym, false);
+                    teWin.onKeyEvent(event.key, false);
                     break;
                 case SDL_QUIT:
                     exit(0);
             }
         }
+
+        teWin.render();
     }
 
     GraphicsManager::destroy();

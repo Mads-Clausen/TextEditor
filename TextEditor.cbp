@@ -32,10 +32,13 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="include/graphics/Color.hpp" />
 		<Unit filename="include/graphics/Drawable.hpp" />
 		<Unit filename="include/graphics/GraphicsManager.hpp" />
 		<Unit filename="include/graphics/TextEditorWindow.hpp" />
+		<Unit filename="include/text/EditorChar.hpp" />
 		<Unit filename="include/text/TextUtils.hpp" />
+		<Unit filename="src/graphics/Color.cpp" />
 		<Unit filename="src/graphics/GraphicsManager.cpp" />
 		<Unit filename="src/graphics/TextEditorWindow.cpp" />
 		<Unit filename="src/main.cpp" />

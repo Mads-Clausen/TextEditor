@@ -9,15 +9,29 @@
 #include "graphics/GraphicsManager.hpp"
 #include "text/TextUtils.hpp"
 
+typedef std::vector<char> CharList;
+typedef std::vector<CharList*> CharMap;
+
 class TextEditorWindow : public GraphicsManager
 {
     private:
         bool _shift, _capslock;
+        CharMap _lines; // Vectorception?
+        unsigned int _cursorX, _cursorY;
         SDL_Surface *_target;
 
+        void moveCursorDown();
+        void moveCursorUp();
+        void moveCursorLeft();
+        void moveCursorRight();
+
     public:
-        TextEditorWindow() {}
-        virtual ~TextEditorWindow() {}
+        TextEditorWindow()
+        {
+            _cursorX = _cursorY = 0;
+        }
+
+        virtual ~TextEditorWindow();
 
         /**
          * Callback. Should be called whenever a key is pressed.
@@ -25,7 +39,7 @@ class TextEditorWindow : public GraphicsManager
          * @param key The key.
          * @param dir The direction of the event(up or down).
          */
-        void onKeyDown(SDLKey &key, bool dir);
+        void onKeyEvent(SDL_KeyboardEvent &key, bool dir);
 
         /**
          * Initialises the "window".
@@ -46,6 +60,18 @@ class TextEditorWindow : public GraphicsManager
          * @return Success?
          */
         bool resize(int w, int h);
+
+        /**
+         * Adds a char at the current cursor position.
+         *
+         * @param c The char to add.
+         */
+        void addChar(char c);
+
+        /**
+         * Removes the char at the current cursor position.
+         */
+        void removeChar();
 };
 
 #endif // TEXTEDITORWINDOW_INCLUDED

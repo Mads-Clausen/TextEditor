@@ -50,7 +50,7 @@ namespace graphics
 
         ColorScheme()
         {
-            defaultFG = {255, 255, 255};
+
         }
 
         /**

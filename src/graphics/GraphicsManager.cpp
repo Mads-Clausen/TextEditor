@@ -15,6 +15,7 @@ void GraphicsManager::render()
 void GraphicsManager::init(int scrWidth, int scrHeight)
 {
     SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_EnableUNICODE(1);
     _screen = SDL_SetVideoMode(scrWidth, scrHeight, 32, SDL_SWSURFACE | SDL_RESIZABLE);
 }
 
