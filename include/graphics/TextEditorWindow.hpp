@@ -72,6 +72,11 @@ class TextEditorWindow : public GraphicsManager
          * Removes the char at the current cursor position.
          */
         void removeChar();
+
+        /**
+         * Adds a line.
+         */
+        void addLine();
 };
 
 #endif // TEXTEDITORWINDOW_INCLUDED

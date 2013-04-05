@@ -52,7 +52,7 @@ void TextEditorWindow::moveCursorDown()
 
         // Make sure that we're not trying to access non-existing chars
         if(_cursorX >= _lines[_cursorY]->size())
-            _cursorX = _lines[_cursorY]->size() - 1;
+            _cursorX = _lines[_cursorY]->size();
     }
 }
 
@@ -64,7 +64,7 @@ void TextEditorWindow::moveCursorUp()
 
         // Make sure that we're not trying to access non-existing chars
         if(_cursorX >= _lines[_cursorY]->size())
-            _cursorX = _lines[_cursorY]->size() - 1;
+            _cursorX = _lines[_cursorY]->size();
     }
 }
 
@@ -90,28 +90,34 @@ void TextEditorWindow::moveCursorLeft()
 
         // Move to the end of the line if the up-move was successful
         if(_cursorY != oldCY)
-            _cursorX = _lines[_cursorY]->size() - 1;
+            _cursorX = _lines[_cursorY]->size();
     }
 }
 
 void TextEditorWindow::addChar(char c)
 {
-    std::cout << "Adding char '" << c << "' at (" << _cursorX << ", " << _cursorY << ")" << std::endl;
+    // std::cout << "Adding char '" << c << "' at (" << _cursorX << ", " << _cursorY << ")" << std::endl;
     _lines[_cursorY]->insert(_lines[_cursorY]->begin() + _cursorX, c); // Insert the char
 
-    std::cout << "Char at (" << _cursorX << ", " << _cursorY << "): '" << (*(_lines[_cursorY]))[_cursorX] << "'" << std::endl;
+    // std::cout << "Char at (" << _cursorX << ", " << _cursorY << "): '" << (*(_lines[_cursorY]))[_cursorX] << "'" << std::endl;
     this->moveCursorRight(); // Go to the right
 }
 
 void TextEditorWindow::removeChar()
 {
     if(_cursorX > 0)
+    {
+        // std::cout << "Removing char at (" << (_cursorX - 1) << ", " << _cursorY << ")" << std::endl;
         _lines[_cursorY]->erase(_lines[_cursorY]->begin() + (_cursorX - 1));
+        this->moveCursorLeft();
+    }
     else
     {
         // Make sure we're not moving stuff to line -1
         if(_cursorY > 0)
         {
+            unsigned int oldSize = _lines[_cursorY - 1]->size();
+
             // Move current line above
             for(unsigned int x = 0; x < _lines[_cursorY]->size(); ++x)
             {
@@ -121,8 +127,29 @@ void TextEditorWindow::removeChar()
 
             // Remove old line
             _lines.erase(_lines.begin() + _cursorY);
+
+            this->moveCursorUp();
+            _cursorX = oldSize;
         }
     }
+}
+
+void TextEditorWindow::addLine()
+{
+    _lines.insert(_lines.begin() + (_cursorY + 1), new CharList());
+
+    // Move the rest of the current line to the one below
+    ++_cursorX;
+    for(unsigned int x = _cursorX; x < _lines[_cursorY]->size(); ++x)
+        _lines[_cursorY + 1]->push_back((*(_lines[_cursorY]))[x]);
+
+    for(unsigned int x = _cursorX; x < _lines[_cursorY]->size(); ++x)
+        _lines[_cursorY]->erase(_lines[_cursorY]->begin() + x);
+
+    this->moveCursorDown();
+    // Make sure that we're not trying to access non-existing chars
+    if(_cursorX >= _lines[_cursorY]->size())
+        _cursorX = _lines[_cursorY]->size();
 }
 
 void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
@@ -145,25 +172,6 @@ void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
     {
         // std::cout << "Key " << (int) key.keysym.sym << " AKA '" << kName.c_str() << "' was pressed." << std::endl;
 
-        // Get the unicode char
-        if(kName < 0x80 && kName > 0)
-        {
-            this->addChar(kName);
-            // Print the entire line
-            for(unsigned int x = 0; x < _lines[_cursorY]->size(); ++x)
-            {
-                std::cout << (*(_lines[_cursorY]))[x];
-            }
-            std::cout << std::endl;
-        }
-        else
-        {
-            // Unable to find character name
-            /* ========================== */
-            /*            TODO            */
-            /* ========================== */
-        }
-
         if(key.keysym.sym == SDLK_DOWN)
         {
             this->moveCursorDown();
@@ -178,9 +186,41 @@ void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
         }
         else if(key.keysym.sym == SDLK_UP)
         {
-            this->moveCursorDown();
+            this->moveCursorUp();
         }
-    }
+        else if(key.keysym.sym == SDLK_BACKSPACE)
+        {
+            this->removeChar();
+        }
+        else if(key.keysym.sym == SDLK_RETURN)
+        {
+            this->addLine();
+        }
+        else
+        {
+            // Get the unicode char
+            if(kName < 0x80 && kName > 0)
+            {
+                this->addChar(kName);
+            }
+            else
+            {
+                // Unable to find character name
+                /* ========================== */
+                /*            TODO            */
+                /* ========================== */
+            }
+        }
+
+        std::cout << "(" << _cursorX << ", " << _cursorY << ")";
+
+        // Print the entire line
+        for(unsigned int x = 0; x < _lines[_cursorY]->size(); ++x)
+        {
+            // std::cout << (x == _cursorX ? "\033[4m" : "\033[0m") << (*(_lines[_cursorY]))[x];
+        }
+        std::cout << std::endl;
+        }
     else // UP
     {
         // std::cout << "Key " << (int) key.keysym.sym << " AKA '" << kName.c_str() << "' was released." << std::endl;
