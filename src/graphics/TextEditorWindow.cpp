@@ -1,5 +1,7 @@
 #include "graphics/TextEditorWindow.hpp"
 
+#include <iomanip>
+
 TextEditorWindow::~TextEditorWindow()
 {
     // Free the target
@@ -7,9 +9,7 @@ TextEditorWindow::~TextEditorWindow()
 
     // Delete all EditorChar pointers
     for(unsigned int y = 0; y < _lines.size(); ++y)
-    {
         delete _lines[y];
-    }
 }
 
 bool TextEditorWindow::init(int w, int h)
@@ -17,6 +17,8 @@ bool TextEditorWindow::init(int w, int h)
     bool r = this->resize(w, h);
     std::cout << "Initialised TextEditorWindow with size " << w << "*" << h << std::endl;
     _lines.push_back(new CharList); // Make sure we have one line to start with
+    _colors.load("colorschemes/default.csch");
+    _tabLen = 4;
 
     return r;
 }
@@ -172,6 +174,8 @@ void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
     {
         // std::cout << "Key " << (int) key.keysym.sym << " AKA '" << kName.c_str() << "' was pressed." << std::endl;
 
+        bool shallPrint = true;
+
         if(key.keysym.sym == SDLK_DOWN)
         {
             this->moveCursorDown();
@@ -196,6 +200,11 @@ void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
         {
             this->addLine();
         }
+        else if(key.keysym.sym == SDLK_TAB)
+        {
+            for(unsigned int i = 0; i < _tabLen; ++i)
+                addChar(' ');
+        }
         else
         {
             // Get the unicode char
@@ -209,18 +218,34 @@ void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
                 /* ========================== */
                 /*            TODO            */
                 /* ========================== */
+
+                shallPrint = false;
             }
         }
 
-        std::cout << "(" << _cursorX << ", " << _cursorY << ")";
-
         // Print the entire line
-        for(unsigned int x = 0; x < _lines[_cursorY]->size(); ++x)
+        if(shallPrint)
         {
-            // std::cout << (x == _cursorX ? "\033[4m" : "\033[0m") << (*(_lines[_cursorY]))[x];
+            char line[_lines[_cursorY]->size() + 1];
+            for(unsigned int x = 0; x < _lines[_cursorY]->size(); ++x)
+            {
+                line[x] = (*(_lines[_cursorY]))[x];
+            }
+            line[_lines[_cursorY]->size()] = '\0';
+
+            std::vector<const char*> keywords;
+            keywords.push_back("for");
+            keywords.push_back("unsigned");
+            keywords.push_back("int");
+            keywords.push_back("char");
+
+            std::string sLine(line);
+            applySyntaxHighlighting(sLine, keywords);
+            // std::cout << sLine.c_str() << std::endl;
+            std::vector<text::EditorChar> chars = getEditorCharVector(sLine, _colors);
+            printEditorChars(chars);
         }
-        std::cout << std::endl;
-        }
+    }
     else // UP
     {
         // std::cout << "Key " << (int) key.keysym.sym << " AKA '" << kName.c_str() << "' was released." << std::endl;

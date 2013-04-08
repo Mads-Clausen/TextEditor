@@ -8,6 +8,7 @@
 
 #include "graphics/GraphicsManager.hpp"
 #include "text/TextUtils.hpp"
+using namespace text::TextUtils;
 
 typedef std::vector<char> CharList;
 typedef std::vector<CharList*> CharMap;
@@ -17,8 +18,9 @@ class TextEditorWindow : public GraphicsManager
     private:
         bool _shift, _capslock;
         CharMap _lines; // Vectorception?
-        unsigned int _cursorX, _cursorY;
+        unsigned int _cursorX, _cursorY, _tabLen;
         SDL_Surface *_target;
+        graphics::ColorScheme _colors;
 
         void moveCursorDown();
         void moveCursorUp();

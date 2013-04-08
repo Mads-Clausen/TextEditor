@@ -15,10 +15,7 @@ int main(int argc, char **argv)
     GraphicsManager::init(800, 600);
     teWin.init();
 
-    graphics::ColorScheme sc;
-    sc.load("colorschemes/default.csch");
-    setColorScheme(sc);
-
+    /*
     std::string test("for(unsigned int i = 0; i < something; ++i)");
     std::vector<const char*> keywords;
     keywords.push_back("for");
@@ -27,7 +24,8 @@ int main(int argc, char **argv)
 
     applySyntaxHighlighting(test, keywords);
     std::vector<text::EditorChar> chars = getEditorCharVector(test);
-    printEditorChars(chars);
+    // printEditorChars(chars);
+    //*/
 
     for(bool running = true; running;)
     {

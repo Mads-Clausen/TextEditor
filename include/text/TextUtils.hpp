@@ -65,10 +65,11 @@ namespace text
          * Translates a string into a vector of EditorChars.
          *
          * @param s The string.
+         * @param curCS The colorscheme to use.
          *
          * @return A vector with the EditorChars
          */
-        std::vector<EditorChar> getEditorCharVector(std::string &s);
+        std::vector<EditorChar> getEditorCharVector(std::string &s, graphics::ColorScheme &curCS);
 
         /**
          * Prints the EditorChars to the console.
@@ -76,13 +77,6 @@ namespace text
          * @param chars The vector with EditorChars.
          */
         void printEditorChars(std::vector<EditorChar> &chars);
-
-        /**
-         * Sets the current colorscheme.
-         *
-         * @param sc The new scheme.
-         */
-        void setColorScheme(graphics::ColorScheme sc);
     }
 }
 #endif // TEXT_INCLUDED
