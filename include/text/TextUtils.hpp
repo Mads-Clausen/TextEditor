@@ -47,8 +47,9 @@ namespace text
          *
          * @param s The string.
          * @param keywords The keywords(for, if, while, etc.)
+         * @param multiline Is a multiline comment going on?
          */
-        void applySyntaxHighlighting(std::string &s, std::vector<const char*> keywords);
+        void applySyntaxHighlighting(std::string &s, std::vector<std::string> keywords, bool multiline = false);
 
         /**
          * Replaces all occurences of a substring with another one.

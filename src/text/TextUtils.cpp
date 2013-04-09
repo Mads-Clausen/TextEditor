@@ -147,18 +147,24 @@ namespace text
             }
         }
 
-        void applySyntaxHighlighting(std::string &s, std::vector<const char*> keywords)
+        void applySyntaxHighlighting(std::string &s, std::vector<std::string> keywords, bool multiline)
         {
+            std::stringstream start;
+            start << "$" << graphics::COLORSET_DEFAULT;
+            if(multiline)
+                start << "$" << graphics::COLORSET_COMMENT_START;
+
+
             // Highlight keywords
             for(unsigned int i = 0; i < keywords.size(); ++i)
             {
                 // Try new method, much faster
                 int pos = -1;
 
-                while(s.find(keywords[i], pos + 1) != std::string::npos)
+                while(s.find(keywords[i].c_str(), pos + 1) != std::string::npos)
                 {
-                    pos = s.find(keywords[i], pos + 1);
-                    unsigned int len = std::string(keywords[i]).length();
+                    pos = s.find(keywords[i].c_str(), pos + 1);
+                    unsigned int len = keywords[i].length();
                     if(pos > 0)
                     {
                         char needle[2];
@@ -174,7 +180,7 @@ namespace text
                     if((unsigned int) pos < s.length())
                     {
                         char needle[2];
-                        needle[0] = s[pos + std::string(keywords[i]).length()];
+                        needle[0] = s[pos + len];
                         needle[1] = '\0';
                         if(alphanums.find(std::string(needle)) != std::string::npos && alphanums.find(std::string(needle)) != 0)
                         {
@@ -194,6 +200,14 @@ namespace text
                         continue;
                     }
 
+                    quoteCount = countChars(before, "'");
+                    if(quoteCount % 2 != 0)
+                    {
+                        // std::cout << "Skipping at " << pos << "because of quotes" << std::endl;
+                        ++pos;
+                        continue;
+                    }
+
                     std::stringstream sub;
                     sub << '$' << graphics::COLORSET_KEYWORD << keywords[i] << '$' << graphics::COLORSET_DEFAULT;
                     // std::cout << "Replacing '" << s.substr(pos, len).c_str() << "' at " << pos << " with '" << sub.str().c_str() << "'" << std::endl;
@@ -203,8 +217,38 @@ namespace text
                 }
             }
 
-            // Highlight strings
             int pos = -1;
+
+            // Check for comments
+            bool singleline = false;
+            for(unsigned int i = 0; i < s.length(); ++i)
+            {
+                if(s[i] == '/' && i < s.length() - 1 && s[i + 1] == '/' && !multiline && !singleline)
+                {
+                    singleline = true;
+                    std::stringstream sub;
+                    sub << "$" << graphics::COLORSET_COMMENT_START;
+                    s.insert(i, sub.str());
+                }
+                else if(s[i] == '/' && i < s.length() - 1 && s[i + 1] == '*' && !multiline && !singleline)
+                {
+                    multiline = true;
+                    std::stringstream sub;
+                    sub << "$" << graphics::COLORSET_COMMENT_START;
+                    s.insert(i, sub.str());
+                    i += 2;
+                }
+                else if(s[i] == '*' && i < s.length() - 1 && s[i + 1] == '/' && multiline && !singleline)
+                {
+                    multiline = false;
+                    std::stringstream sub;
+                    sub << "$" << graphics::COLORSET_COMMENT_END;
+                    s.insert(i + 2, sub.str());
+                    i += 2;
+                }
+            }
+
+            // Highlight strings
             while(s.find("\"", pos + 1) != std::string::npos)
             {
                 pos = s.find("\"", pos + 1);
@@ -320,9 +364,39 @@ namespace text
                 }
             }
 
-            // Insert $default at start
-            std::stringstream start;
-            start << '$' << graphics::COLORSET_DEFAULT;
+            // Highlight numbers
+            for(unsigned int i = 0; i < s.length(); ++i)
+            {
+                if(isdigit(s[i]))
+                {
+                    if(i > 0 && s[i - 1] == '$')
+                        continue;
+
+                    std::stringstream sub;
+                    // Find next non-digit char
+                    unsigned int len = 0;
+
+                    for(unsigned int x = i + 1; x < s.length(); ++x)
+                    {
+                        if(x > 0 && s[x - 1] == '$')
+                            continue;
+
+                        if(!isxdigit(s[x]))
+                        {
+                            sub.str("");
+                            sub << "$" << graphics::COLORSET_DEFAULT;
+                            s.insert(x, sub.str());
+                            len = x;
+                            break;
+                        }
+                    }
+
+                    sub << "$" << graphics::COLORSET_NUMBERS;
+                    s.insert(i, sub.str());
+                    i += len + 6;
+                }
+            }
+
             s.insert(0, start.str());
         }
 
@@ -330,6 +404,8 @@ namespace text
         {
             std::vector<EditorChar> chars;
             graphics::Color curBG = curCS.defaultBG, curFG = curCS.defaultFG;
+
+            bool inComment = false;
 
             for(unsigned int i = 0; i < s.length(); ++i)
             {
@@ -340,29 +416,41 @@ namespace text
                     codeString[0] = s[i + 1];
                     sscanf(codeString, "%i", &code);
 
-                    switch(code)
+                    if(!inComment)
                     {
-                        case graphics::COLORSET_DEFAULT:
+                        switch(code)
+                        {
+                            case graphics::COLORSET_DEFAULT:
+                                curBG = curCS.defaultBG; curFG = curCS.defaultFG;
+                                break;
+                            case graphics::COLORSET_KEYWORD:
+                                curBG = curCS.keywordsBG; curFG = curCS.keywordsFG;
+                                break;
+                            case graphics::COLORSET_NUMBERS:
+                                curBG = curCS.numbersBG; curFG = curCS.numbersFG;
+                                break;
+                            case graphics::COLORSET_CHARS:
+                                curBG = curCS.charsBG; curFG = curCS.charsFG;
+                                break;
+                            case graphics::COLORSET_STRINGS:
+                                curBG = curCS.stringsBG; curFG = curCS.stringsFG;
+                                break;
+                            case graphics::COLORSET_COMMENT_START:
+                                curBG = curCS.commentsBG; curFG = curCS.commentsFG;
+                                inComment = true;
+                                break;
+                            case graphics::COLORSET_OPS:
+                                curBG = curCS.opsBG; curFG = curCS.opsFG;
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        if(code == graphics::COLORSET_COMMENT_END)
+                        {
+                            inComment = false;
                             curBG = curCS.defaultBG; curFG = curCS.defaultFG;
-                            break;
-                        case graphics::COLORSET_KEYWORD:
-                            curBG = curCS.keywordsBG; curFG = curCS.keywordsFG;
-                            break;
-                        case graphics::COLORSET_NUMBERS:
-                            curBG = curCS.numbersBG; curFG = curCS.numbersFG;
-                            break;
-                        case graphics::COLORSET_CHARS:
-                            curBG = curCS.charsBG; curFG = curCS.charsFG;
-                            break;
-                        case graphics::COLORSET_STRINGS:
-                            curBG = curCS.stringsBG; curFG = curCS.stringsFG;
-                            break;
-                        case graphics::COLORSET_COMMENTS:
-                            curBG = curCS.commentsBG; curFG = curCS.commentsFG;
-                            break;
-                        case graphics::COLORSET_OPS:
-                            curBG = curCS.opsBG; curFG = curCS.opsFG;
-                            break;
+                        }
                     }
 
                     ++i;

@@ -17,8 +17,12 @@ bool TextEditorWindow::init(int w, int h)
     bool r = this->resize(w, h);
     std::cout << "Initialised TextEditorWindow with size " << w << "*" << h << std::endl;
     _lines.push_back(new CharList); // Make sure we have one line to start with
-    _colors.load("colorschemes/default.csch");
     _tabLen = 4;
+
+    _lang.path = "languages/c++";
+    _lang.name = "C++";
+    _lang.load();
+    _lang.loadColors("colorschemes/default.csch");
 
     return r;
 }
@@ -233,16 +237,11 @@ void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
             }
             line[_lines[_cursorY]->size()] = '\0';
 
-            std::vector<const char*> keywords;
-            keywords.push_back("for");
-            keywords.push_back("unsigned");
-            keywords.push_back("int");
-            keywords.push_back("char");
-
             std::string sLine(line);
-            applySyntaxHighlighting(sLine, keywords);
+            applySyntaxHighlighting(sLine, _lang.keywords);
+
             // std::cout << sLine.c_str() << std::endl;
-            std::vector<text::EditorChar> chars = getEditorCharVector(sLine, _colors);
+            std::vector<text::EditorChar> chars = getEditorCharVector(sLine, _lang.colorScheme);
             printEditorChars(chars);
         }
     }

@@ -34,7 +34,7 @@ namespace graphics
             ++it;
             b = *it;
 
-            term = 7; // White
+            term = 8; // White
 
             return *this;
         }
@@ -47,7 +47,8 @@ namespace graphics
         COLORSET_NUMBERS,
         COLORSET_STRINGS,
         COLORSET_CHARS,
-        COLORSET_COMMENTS,
+        COLORSET_COMMENT_START,
+        COLORSET_COMMENT_END,
         COLORSET_OPS
     };
 

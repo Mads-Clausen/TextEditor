@@ -37,11 +37,13 @@
 		<Unit filename="include/graphics/GraphicsManager.hpp" />
 		<Unit filename="include/graphics/TextEditorWindow.hpp" />
 		<Unit filename="include/text/EditorChar.hpp" />
+		<Unit filename="include/text/SyntaxLanguage.hpp" />
 		<Unit filename="include/text/TextUtils.hpp" />
 		<Unit filename="src/graphics/Color.cpp" />
 		<Unit filename="src/graphics/GraphicsManager.cpp" />
 		<Unit filename="src/graphics/TextEditorWindow.cpp" />
 		<Unit filename="src/main.cpp" />
+		<Unit filename="src/text/SyntaxLanguage.cpp" />
 		<Unit filename="src/text/TextUtils.cpp" />
 		<Extensions>
 			<code_completion />

@@ -8,6 +8,7 @@
 
 #include "graphics/GraphicsManager.hpp"
 #include "text/TextUtils.hpp"
+#include "text/SyntaxLanguage.hpp"
 using namespace text::TextUtils;
 
 typedef std::vector<char> CharList;
@@ -21,6 +22,7 @@ class TextEditorWindow : public GraphicsManager
         unsigned int _cursorX, _cursorY, _tabLen;
         SDL_Surface *_target;
         graphics::ColorScheme _colors;
+        text::SyntaxLanguage _lang;
 
         void moveCursorDown();
         void moveCursorUp();
