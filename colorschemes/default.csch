@@ -1,11 +1,11 @@
 # Syntax:
 # <name> <red 0-255> <green 0-255> <blue 0-255> <alpha 0-255> <termcolor>
 fg_default 0 0 0 255 8
-fg_keywords 255 0 0 255 1
+fg_keywords 255 0 0 255 6
 fg_numbers 0 255 0 255 5
 fg_strings 0 255 0 255 2
 fg_chars 0 32 200 255 2
-fg_operators 255 0 255 255 8
+fg_operators 255 0 255 255 1
 fg_comments 100 100 100 255 8
 
 bg_default 255 255 255 255 0

@@ -9,7 +9,12 @@
 
 #include "graphics/Color.hpp"
 
-std::string alphanums("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
+char operators[] = {
+    '+', '-', '*', '/', '{', '}', '(', ')', '[', ']', ',', '.', '^', '&', '%', '!', '=', '|', '<', '>', ':', ';'
+};
+unsigned int numOperators = 22;
+
+std::string alphanums("`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
 int countChars(std::string s, const char *needle)
 {
@@ -144,8 +149,6 @@ namespace text
 
         void applySyntaxHighlighting(std::string &s, std::vector<const char*> keywords)
         {
-            std::string ref = s; // Used to count quotes etc.
-
             // Highlight keywords
             for(unsigned int i = 0; i < keywords.size(); ++i)
             {
@@ -162,6 +165,18 @@ namespace text
                         needle[0] = s[pos - 1];
                         needle[1] = '\0';
                         if(alphanums.find(std::string(needle)) != std::string::npos)
+                        {
+                            ++pos;
+                            continue;
+                        }
+                    }
+
+                    if((unsigned int) pos < s.length())
+                    {
+                        char needle[2];
+                        needle[0] = s[pos + std::string(keywords[i]).length()];
+                        needle[1] = '\0';
+                        if(alphanums.find(std::string(needle)) != std::string::npos && alphanums.find(std::string(needle)) != 0)
                         {
                             ++pos;
                             continue;
@@ -271,6 +286,44 @@ namespace text
                     }
                 }
             }
+
+            // Highlight operators
+            for(unsigned int i = 0; i < numOperators; ++i)
+            {
+                // Try new method, much faster
+                int pos = -1;
+
+                char curOp[2];
+                curOp[0] = operators[i];
+                curOp[1] = '\0';
+
+                while(s.find(curOp, pos + 1) != std::string::npos)
+                {
+                    pos = s.find(curOp, pos + 1);
+                    unsigned int len = std::string(curOp).length();
+
+                    // Check if we are between quotes
+                    std::string before = s.substr(0, pos);
+                    // std::cout << "Before: '" << before.c_str() << "' at " << pos + deletedChars << std::endl;
+                    int quoteCount = countChars(before, "\"");
+                    if(quoteCount % 2 != 0)
+                    {
+                        ++pos;
+                        continue;
+                    }
+
+                    std::stringstream sub;
+                    sub << '$' << graphics::COLORSET_OPS << curOp << '$' << graphics::COLORSET_DEFAULT;
+                    s.replace(pos, len, sub.str());
+
+                    pos += 2;
+                }
+            }
+
+            // Insert $default at start
+            std::stringstream start;
+            start << '$' << graphics::COLORSET_DEFAULT;
+            s.insert(0, start.str());
         }
 
         std::vector<EditorChar> getEditorCharVector(std::string &s, graphics::ColorScheme &curCS)
