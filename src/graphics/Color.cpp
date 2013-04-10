@@ -37,6 +37,7 @@ namespace graphics
                     else if(words[0] == "fg_chars")     col = &charsFG;
                     else if(words[0] == "fg_operators") col = &opsFG;
                     else if(words[0] == "fg_comments")  col = &commentsFG;
+                    else if(words[0] == "fg_preprocess") col = &preprocFG;
 
                     else if(words[0] == "bg_default")   col = &defaultBG;
                     else if(words[0] == "bg_keywords")   col = &keywordsBG;
@@ -45,6 +46,7 @@ namespace graphics
                     else if(words[0] == "bg_chars")     col = &charsBG;
                     else if(words[0] == "bg_operators") col = &opsBG;
                     else if(words[0] == "bg_comments")  col = &commentsBG;
+                    else if(words[0] == "bg_preprocess") col = &preprocBG;
 
                     sscanf(words[1].c_str(), "%i", &(col->r));
                     sscanf(words[2].c_str(), "%i", &(col->g));

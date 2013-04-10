@@ -49,7 +49,8 @@ namespace graphics
         COLORSET_CHARS,
         COLORSET_COMMENT_START,
         COLORSET_COMMENT_END,
-        COLORSET_OPS
+        COLORSET_OPS,
+        COLORSET_PREPROC
     };
 
     struct ColorScheme
@@ -61,7 +62,8 @@ namespace graphics
         stringsFG,  stringsBG,
         charsFG,    charsBG,
         commentsFG, commentsBG,
-        opsFG,      opsBG;
+        opsFG,      opsBG,
+        preprocFG, preprocBG;
 
         ColorScheme()
         {

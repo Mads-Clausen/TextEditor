@@ -48,8 +48,10 @@ namespace text
          * @param s The string.
          * @param keywords The keywords(for, if, while, etc.)
          * @param multiline Is a multiline comment going on?
+         *
+         * @return Still in a multiline comment?
          */
-        void applySyntaxHighlighting(std::string &s, std::vector<std::string> keywords, bool multiline = false);
+        bool applySyntaxHighlighting(std::string &s, std::vector<std::string> keywords, bool multiline = false);
 
         /**
          * Replaces all occurences of a substring with another one.

@@ -146,16 +146,15 @@ void TextEditorWindow::addLine()
 
     // Move the rest of the current line to the one below
     ++_cursorX;
-    for(unsigned int x = _cursorX; x < _lines[_cursorY]->size(); ++x)
+    for(unsigned int x = _cursorX - 1; x < _lines[_cursorY]->size(); ++x)
         _lines[_cursorY + 1]->push_back((*(_lines[_cursorY]))[x]);
 
-    for(unsigned int x = _cursorX; x < _lines[_cursorY]->size(); ++x)
+    for(unsigned int x = _cursorX - 1; x < _lines[_cursorY]->size();) // No need to increment x, as we are deleting chars
         _lines[_cursorY]->erase(_lines[_cursorY]->begin() + x);
 
     this->moveCursorDown();
-    // Make sure that we're not trying to access non-existing chars
-    if(_cursorX >= _lines[_cursorY]->size())
-        _cursorX = _lines[_cursorY]->size();
+
+    _cursorX = 0;
 }
 
 void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
