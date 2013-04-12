@@ -126,10 +126,8 @@ void TextEditorWindow::removeChar()
 
             // Move current line above
             for(unsigned int x = 0; x < _lines[_cursorY]->size(); ++x)
-            {
                 // We can push since we're appending to the end of the line
                 _lines[_cursorY - 1]->push_back((*(_lines[_cursorY]))[x]);
-            }
 
             // Remove old line
             _lines.erase(_lines.begin() + _cursorY);
