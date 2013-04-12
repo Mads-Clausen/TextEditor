@@ -51,7 +51,15 @@ namespace text
          *
          * @return Still in a multiline comment?
          */
-        bool applySyntaxHighlighting(std::string &s, std::vector<std::string> keywords, bool multiline = false);
+        bool applySyntaxHighlighting(std::string &s, std::vector<std::string> &keywords, bool multiline = false);
+
+        /**
+         * Applies syntax highlighting to all lines in the vector. Uses the current colourscheme.
+         *
+         * @param lines The lines to highlight.
+         * @param keywords The keywords(for, if, while, etc.)
+         */
+        void highlightLines(std::vector<std::string> &lines, std::vector<std::string> &keywords);
 
         /**
          * Replaces all occurences of a substring with another one.

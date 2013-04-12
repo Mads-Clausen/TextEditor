@@ -43,8 +43,6 @@
 	position: fixed;
 	left: 20%;
 	top: 140px;
-
-	box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.4); 
 }
 
 .navbar_element
@@ -58,6 +56,7 @@
 	padding-top: 5px;
 	padding-bottom: 5px;
 	padding-right: 70px;
+	box-shadow: -2px 2px 2px rgba(0, 0, 0, 0.4); 
 }
 
 .navbar_element label

@@ -5,27 +5,17 @@
 
 #include "graphics/GraphicsManager.hpp"
 #include "graphics/TextEditorWindow.hpp"
+#include "graphics/FontRenderer.hpp"
 #include "text/TextUtils.hpp"
-using namespace text::TextUtils;
 
-TextEditorWindow teWin;
+graphics::TextEditorWindow teWin;
 
 int main(int argc, char **argv)
 {
-    GraphicsManager::init(800, 600);
+    if(!graphics::GraphicsManager::init("Da VIMci", 800, 600) || !graphics::FontRenderer::init())
+        return false;
+
     teWin.init();
-
-    /*
-    std::string test("for(unsigned int i = 0; i < something; ++i)");
-    std::vector<const char*> keywords;
-    keywords.push_back("for");
-    keywords.push_back("unsigned");
-    keywords.push_back("int");
-
-    applySyntaxHighlighting(test, keywords);
-    std::vector<text::EditorChar> chars = getEditorCharVector(test);
-    // printEditorChars(chars);
-    //*/
 
     for(bool running = true; running;)
     {
@@ -40,15 +30,21 @@ int main(int argc, char **argv)
                 case SDL_KEYUP:
                     teWin.onKeyEvent(event.key, false);
                     break;
+                case SDL_VIDEORESIZE:
+                    teWin.resize(event.resize.w, event.resize.h);
+                    break;
                 case SDL_QUIT:
                     exit(0);
+                    break;
             }
         }
 
         teWin.render();
+        graphics::GraphicsManager::flip();
     }
 
-    GraphicsManager::destroy();
+    graphics::GraphicsManager::destroy();
+    graphics::FontRenderer::destroy();
 
     return 0;
 }

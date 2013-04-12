@@ -142,7 +142,7 @@ namespace text
             }
         }
 
-        bool applySyntaxHighlighting(std::string &s, std::vector<std::string> keywords, bool multiline)
+        bool applySyntaxHighlighting(std::string &s, std::vector<std::string> &keywords, bool multiline)
         {
             std::stringstream start;
             start << "`" << graphics::COLORSET_DEFAULT;
@@ -153,6 +153,25 @@ namespace text
             // Highlight numbers
             for(unsigned int i = 0; i < s.length(); ++i)
             {
+                // Check if we are between quotes
+                std::string before = s.substr(0, i);
+                // std::cout << "Before: '" << before.c_str() << "' at " << pos + deletedChars << std::endl;
+                int quoteCount = countChars(before, "\"");
+                if(quoteCount % 2 != 0)
+                {
+                    // std::cout << "Skipping at " << pos << "because of quotes" << std::endl;
+                    ++i;
+                    continue;
+                }
+
+                quoteCount = countChars(before, "'");
+                if(quoteCount % 2 != 0)
+                {
+                    // std::cout << "Skipping at " << pos << "because of quotes" << std::endl;
+                    ++i;
+                    continue;
+                }
+
                 if(isdigit(s[i]) )
                 {
                     if(i > 0 && alphanums.find(s[i - 1]) != std::string::npos && alphanums.find(s[i - 1]) != 0)
@@ -418,6 +437,16 @@ namespace text
             s.insert(0, start.str());
 
             return multiline;
+        }
+
+        void highlightLines(std::vector<std::string> &lines, std::vector<std::string> &keywords)
+        {
+            bool multiline = false; // In a multiline comment?
+
+            for(unsigned int i = 0; i < lines.size(); ++i)
+            {
+                multiline = applySyntaxHighlighting(lines[i], keywords, multiline);
+            }
         }
 
         std::vector<EditorChar> getEditorCharVector(std::string &s, graphics::ColorScheme &curCS)

@@ -23,7 +23,7 @@ namespace text
             SyntaxLanguage(const char *p, const char *n) : path(std::string(p)), name(std::string(n)) {}
 
             void load();
-            void loadColors(char *p);
+            void loadColors(const char *p);
     };
 }
 

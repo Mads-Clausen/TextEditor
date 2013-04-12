@@ -27,7 +27,7 @@ namespace text
         }
     }
 
-    void SyntaxLanguage::loadColors(char *p)
+    void SyntaxLanguage::loadColors(const char *p)
     {
         colorScheme.load(p);
     }
