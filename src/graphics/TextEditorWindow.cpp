@@ -352,9 +352,9 @@ namespace graphics
         int lnDigits = numDigits(_lines.size() + 1);
         SDL_Rect lnRectDst;
         lnRectDst.x = lnRectDst.y = 0;
-        lnRectDst.w = lnDigits * 7 + 2;
+        lnRectDst.w = lnDigits * 7 + 4;
         lnRectDst.h = (_lines.size() * _fontSize < _target->h ? _target->h : _lines.size() * _fontSize);
-        SDL_FillRect(_target, &lnRectDst, SDL_MapRGB(_target->format, 200, 200, 200));
+        SDL_FillRect(_target, &lnRectDst, SDL_MapRGB(_target->format, _lang.colorScheme.defaultBG.r - 20, _lang.colorScheme.defaultBG.g - 20, _lang.colorScheme.defaultBG.b - 20));
 
         for(unsigned int y = 0; y < lines.size(); ++y)
         {
@@ -377,10 +377,10 @@ namespace graphics
                 {
                     char *l = itoa(y + 1, 10);
 
-                    graphics::Color c(0, 0, 0, 255);
+                    graphics::Color c(_lang.colorScheme.defaultFG.r + 40, _lang.colorScheme.defaultFG.g + 40, _lang.colorScheme.defaultFG.b + 40, 255);
                     for(unsigned int i = 0; i < lnDigits; ++i)
                     {
-                        graphics::FontRenderer::renderLetter(l[i], i * 7, y * (lY - 2), c);
+                        graphics::FontRenderer::renderLetter(l[i], i * 7 + 2, y * (lY - 2), c);
                     }
                 }
 
