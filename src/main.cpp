@@ -17,6 +17,8 @@ int main(int argc, char **argv)
 
     teWin.init();
 
+    std::cout << "Clipboard data: " << text::TextUtils::getClipboardData() << std::endl;
+
     for(bool running = true; running;)
     {
         SDL_Event event;
@@ -32,6 +34,9 @@ int main(int argc, char **argv)
                     break;
                 case SDL_VIDEORESIZE:
                     teWin.resize(event.resize.w, event.resize.h);
+                    break;
+                case SDL_MOUSEBUTTONDOWN:
+                    teWin.onMouseEvent(event.button, true);
                     break;
                 case SDL_QUIT:
                     exit(0);

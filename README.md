@@ -29,3 +29,9 @@ and cofigured, and that you have installed SDL correctly:
 	* Make sure that "<folder/you/downloaded/to>/include/" is listed in "Search Directories".
 * Press "Build".
 * Press "Run".
+
+If you are on Linux, you will also need to install xclip:
+'''
+sudo apt-get install xclip
+'''
+Alternatively use pacman or yum instead of apt-get

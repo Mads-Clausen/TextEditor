@@ -107,7 +107,38 @@ namespace text
 {
     namespace TextUtils
     {
-        bool replace(std::string& str, const std::string& from, const std::string& to) {
+        std::string getClipboardData()
+        {
+            #ifdef WIN32
+
+            HANDLE clip;
+            if(OpenClipboard(0))
+            {
+                return std::string(GetClipboardData(CF_TEXT));
+            }
+
+            #else
+
+            FILE* pipe = popen("xclip -o", "r");
+            if (!pipe) return "";
+            char buffer[4096];
+            std::string result = "";
+            while(!feof(pipe))
+            {
+                if(fgets(buffer, 4096, pipe) != NULL)
+                    result += buffer;
+            }
+            pclose(pipe);
+
+            return result;
+
+            #endif
+
+            return "";
+        }
+
+        bool replace(std::string& str, const std::string& from, const std::string& to)
+        {
             size_t start_pos = str.find(from);
             if(start_pos == std::string::npos)
                 return false;

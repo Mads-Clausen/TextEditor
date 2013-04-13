@@ -8,12 +8,25 @@
 #include <string>
 #include <vector>
 
+#ifdef WIN32
+#include <windows.h>
+#else
+#include <stdio.h>
+#endif
+
 #include "text/EditorChar.hpp"
 
 namespace text
 {
     namespace TextUtils
     {
+        /**
+         * Returns data in clipboard.
+         *
+         * @return Data in clipboard.
+         */
+        std::string getClipboardData();
+
         /**
          * Makes a single character lowercase.
          *

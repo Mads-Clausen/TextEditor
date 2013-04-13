@@ -60,6 +60,12 @@ namespace graphics
         _spacing = 1;
         graphics::FontRenderer::setFont(_font);
 
+        int x;
+        TTF_SizeText(_font, "1", &x, &_fontHeight);
+
+        _hlLines = this->getLines();
+        highlightLines(_hlLines, _lang.keywords);
+
         return r;
     }
 
@@ -95,6 +101,9 @@ namespace graphics
         {
             ++_cursorY; // Move down
 
+            if((_cursorY - _scrollY) == (int) _target->h / _fontHeight + 3 && _scrollY < (int) _lines.size())
+                ++_scrollY;
+
             // Make sure that we're not trying to access non-existing chars
             if(_cursorX >= _lines[_cursorY]->size())
                 _cursorX = _lines[_cursorY]->size();
@@ -106,6 +115,9 @@ namespace graphics
         if(_cursorY > 0)
         {
             --_cursorY;
+
+            if((_cursorY - _scrollY) < 4 && _scrollY > 0)
+                --_scrollY;
 
             // Make sure that we're not trying to access non-existing chars
             if(_cursorX >= _lines[_cursorY]->size())
@@ -177,6 +189,20 @@ namespace graphics
         }
     }
 
+    void TextEditorWindow::insertText(std::string s)
+    {
+        for(unsigned int i = 0; i < s.length(); ++i)
+        {
+            if(s[i] == '\n')
+            {
+                this->addLine();
+                continue;
+            }
+
+            this->addChar(s[i]);
+        }
+    }
+
     void TextEditorWindow::addLine()
     {
         _lines.insert(_lines.begin() + (_cursorY + 1), new CharList());
@@ -192,6 +218,34 @@ namespace graphics
         this->moveCursorDown();
 
         _cursorX = 0;
+    }
+
+    void TextEditorWindow::scroll(bool dir)
+    {
+        // True = up, false = down
+        if(dir && _scrollY > 0)
+        {
+            --_scrollY;
+        }
+        else if(!dir && _scrollY < _lines.size() - (_target->h / _fontHeight + 3) && _lines.size() >= _target->h / _fontHeight + 3)
+        {
+            ++_scrollY;
+        }
+    }
+
+    void TextEditorWindow::onMouseEvent(SDL_MouseButtonEvent &ev, bool dir)
+    {
+        switch(ev.button)
+        {
+            case SDL_BUTTON_WHEELDOWN:
+                this->scroll(false);
+                break;
+            case SDL_BUTTON_WHEELUP:
+                this->scroll(true);
+                break;
+            default:
+                break;
+        }
     }
 
     void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
@@ -212,10 +266,6 @@ namespace graphics
 
         if(dir) // DOWN
         {
-            // std::cout << "Key " << (int) key.keysym.sym << " AKA '" << kName.c_str() << "' was pressed." << std::endl;
-
-            bool shallPrint = true;
-
             if(key.keysym.sym == SDLK_DOWN)
             {
                 this->moveCursorDown();
@@ -253,6 +303,11 @@ namespace graphics
             {
                 this->save();
             }
+            else if(key.keysym.sym == SDLK_v && ctrlDown)
+            {
+                this->insertText(text::TextUtils::getClipboardData());
+            }
+            else if(key.keysym.sym == SDLK_LSHIFT || key.keysym.sym == SDLK_RSHIFT || key.keysym.sym == SDLK_RALT || key.keysym.sym == SDLK_LALT || key.keysym.sym == SDLK_CAPSLOCK) {}
             else
             {
                 // Get the unicode char
@@ -262,33 +317,11 @@ namespace graphics
                 }
                 else
                 {
-                    // Unable to find character name
-                    /* ========================== */
-                    /*            TODO            */
-                    /* ========================== */
-
-                    shallPrint = false;
                 }
             }
 
-            // Print the entire line
-            shallPrint = false;
-            if(shallPrint)
-            {
-                char line[_lines[_cursorY]->size() + 1];
-                for(unsigned int x = 0; x < _lines[_cursorY]->size(); ++x)
-                {
-                    line[x] = (*(_lines[_cursorY]))[x];
-                }
-                line[_lines[_cursorY]->size()] = '\0';
-
-                std::string sLine(line);
-                applySyntaxHighlighting(sLine, _lang.keywords);
-
-                std::cout << sLine.c_str() << std::endl;
-                // std::vector<text::EditorChar> chars = getEditorCharVector(sLine, _lang.colorScheme);
-                // printEditorChars(chars);
-            }
+            _hlLines = this->getLines();
+            highlightLines(_hlLines, _lang.keywords);
         }
         else // UP
         {
@@ -298,8 +331,6 @@ namespace graphics
                 ctrlDown = false;
             }
         }
-
-        // this->render();
     }
 
     void TextEditorWindow::save()
@@ -343,7 +374,7 @@ namespace graphics
     {
         SDL_FillRect(_target, 0, SDL_MapRGB(_target->format, _lang.colorScheme.defaultBG.r, _lang.colorScheme.defaultBG.g, _lang.colorScheme.defaultBG.b));
 
-        std::vector<std::string> lines = this->getLines();
+        std::vector<std::string> &lines = _hlLines;
         highlightLines(lines, _lang.keywords);
 
         graphics::FontRenderer::setTarget(_target);
@@ -380,11 +411,11 @@ namespace graphics
                     graphics::Color c(_lang.colorScheme.defaultFG.r + 40, _lang.colorScheme.defaultFG.g + 40, _lang.colorScheme.defaultFG.b + 40, 255);
                     for(unsigned int i = 0; i < lnDigits; ++i)
                     {
-                        graphics::FontRenderer::renderLetter(l[i], i * 7 + 2, y * (lY - 2), c);
+                        graphics::FontRenderer::renderLetter(l[i], i * 7 + 2, (y - _scrollY) * (lY - 2), c);
                     }
                 }
 
-                graphics::FontRenderer::renderLetter(curLine[x].content, lX + x * _spacing + 2 + lnRectDst.w, y * (lY - 2), curLine[x].fgColor);
+                graphics::FontRenderer::renderLetter(curLine[x].content, lX + x * _spacing + 2 + lnRectDst.w, (y - _scrollY) * (lY - 2), curLine[x].fgColor);
             }
         }
 
@@ -403,7 +434,7 @@ namespace graphics
             TTF_SizeText(_font, line, &lX, &lY);
 
             graphics::Color col(0, 0, 0, 255);
-            graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w, _cursorY * (lY - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w, _cursorY * (lY - 2) + (lY - 2), col);
+            graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w, (_cursorY - _scrollY) * (lY - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w, (_cursorY - _scrollY) * (lY - 2) + (lY - 2), col);
         }
 
         ++_caretWait;
