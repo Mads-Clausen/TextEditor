@@ -19,8 +19,8 @@ External libraries used:
 For information about how to install and set up SDL 
 and SDL_ttf, visit http://lazyfoo.net/SDL_tutorials/lesson01/index.php
 
-How to compile on any platform(assuming you have Code::Blocks installed
-and cofigured, and that you have installed SDL correctly)
+Compilation instructions. These assume you have Code::Blocks installed
+and cofigured, and that you have installed SDL correctly:
 
 * Open the file 'TextEditor.cbp' in Code::Blocks(File -> Open -> TextEditor.cbp).
 * Go to "Settings -> Compiler & Debugger"
