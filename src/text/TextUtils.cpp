@@ -520,6 +520,12 @@ namespace text
                 chars.push_back(c);
             }
 
+            EditorChar c;
+            c.bgColor.r = c.bgColor.g = c.bgColor.b = c.bgColor.a = 0;
+            c.fgColor.r = c.fgColor.g = c.fgColor.b = c.fgColor.a = 0;
+            c.content = '\0';
+            chars.push_back(c);
+
             return chars;
         }
 

@@ -37,8 +37,6 @@ namespace graphics
 
             static void setFont(TTF_Font *f)
             {
-                if(_font != 0) TTF_CloseFont(_font);
-
                 _font = f;
             }
 

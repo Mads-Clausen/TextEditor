@@ -347,6 +347,14 @@ namespace graphics
         highlightLines(lines, _lang.keywords);
 
         graphics::FontRenderer::setTarget(_target);
+        graphics::FontRenderer::setFont(_font);
+
+        int lnDigits = numDigits(_lines.size() + 1);
+        SDL_Rect lnRectDst;
+        lnRectDst.x = lnRectDst.y = 0;
+        lnRectDst.w = lnDigits * 7 + 2;
+        lnRectDst.h = (_lines.size() * _fontSize < _target->h ? _target->h : _lines.size() * _fontSize);
+        SDL_FillRect(_target, &lnRectDst, SDL_MapRGB(_target->format, 200, 200, 200));
 
         for(unsigned int y = 0; y < lines.size(); ++y)
         {
@@ -364,7 +372,19 @@ namespace graphics
 
                 TTF_SizeText(_font, line, &lX, &lY);
                 // std::cout << lY << std::endl;
-                graphics::FontRenderer::renderLetter(curLine[x].content, lX + x * _spacing + 2, y * (lY - 2), curLine[x].fgColor);
+
+                if(x == 0)
+                {
+                    char *l = itoa(y + 1, 10);
+
+                    graphics::Color c(0, 0, 0, 255);
+                    for(unsigned int i = 0; i < lnDigits; ++i)
+                    {
+                        graphics::FontRenderer::renderLetter(l[i], i * 7, y * (lY - 2), c);
+                    }
+                }
+
+                graphics::FontRenderer::renderLetter(curLine[x].content, lX + x * _spacing + 2 + lnRectDst.w, y * (lY - 2), curLine[x].fgColor);
             }
         }
 
@@ -383,7 +403,7 @@ namespace graphics
             TTF_SizeText(_font, line, &lX, &lY);
 
             graphics::Color col(0, 0, 0, 255);
-            graphics::line(_target, lX + _cursorX * _spacing + 2, _cursorY * (lY - 2), lX + _cursorX * _spacing + 2, _cursorY * (lY - 2) + (lY - 2), col);
+            graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w, _cursorY * (lY - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w, _cursorY * (lY - 2) + (lY - 2), col);
         }
 
         ++_caretWait;
