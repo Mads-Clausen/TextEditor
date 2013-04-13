@@ -3,6 +3,8 @@ TextEditor
 
 A text editor written in C++.
 
+This is a screenshot of its current state:
+![Screenshot](http://i.imgur.com/pwEpTrp.png)
 
 Compilation
 ===========

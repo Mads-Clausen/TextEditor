@@ -175,9 +175,7 @@ namespace text
                 if(isdigit(s[i]) )
                 {
                     if(i > 0 && alphanums.find(s[i - 1]) != std::string::npos && alphanums.find(s[i - 1]) != 0)
-                    {
                         continue;
-                    }
 
                     if(i > 0 && s[i - 1] == '`')
                         continue;
@@ -196,7 +194,7 @@ namespace text
                             sub.str("");
                             sub << "`" << graphics::COLORSET_DEFAULT;
                             s.insert(x, sub.str());
-                            len = x;
+                            len = x - (i + 1);
                             break;
                         }
                     }

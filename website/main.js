@@ -108,7 +108,11 @@ function onWindowLoad()
 	$(elems[0]).addClass("navbar_element_active", 0);
 	currentNavbarEl = elems[0].id;
 
-	// Adjust navigation bar size
-	var left = ($("#body").outerWidth() - $("#main").outerWidth()) / 2  - $("#navbar").outerWidth();
-	$("#navbar").css("left", left + "px")
+	window.onresize = function()
+	{	
+		// Adjust navigation bar size
+		var left = ($("#body").outerWidth() - $("#main").outerWidth()) / 2  - $("#navbar").outerWidth();
+		$("#navbar").css("left", left + "px");
+	};
+	window.onresize();
 }

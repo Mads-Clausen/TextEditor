@@ -1,15 +1,15 @@
 # Syntax:
 # <name> <red 0-255> <green 0-255> <blue 0-255> <alpha 0-255> <termcolor>
-fg_default 0 0 0 255 8
-fg_keywords 255 0 0 255 6
-fg_numbers 0 255 0 255 5
-fg_strings 0 255 0 255 3
-fg_chars 0 32 200 255 4
-fg_operators 255 0 255 255 1
-fg_comments 100 100 100 255 2
-fg_preprocess 252 177 0 255 3
+fg_default 189 174 157 255 8
+fg_keywords 67 168 237 255 6
+fg_numbers 68 170 67 255 5
+fg_strings 4 155 10 255 3
+fg_chars 0 113 224 255 4
+fg_operators 157 143 255 255 1
+fg_comments 0 102 255 255 2
+fg_preprocess 154 255 135 255 3
 
-bg_default 255 255 255 255 0
+bg_default 48 48 48 255 0
 bg_keywords 255 255 255 255 0
 bg_numbers 255 255 255 255 0
 bg_strings 255 255 255 255 0

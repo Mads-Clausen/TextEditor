@@ -3,6 +3,7 @@
 
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
+#include <stdio.h>
 #include <iostream>
 #include <string>
 #include <algorithm>
@@ -29,7 +30,8 @@ namespace graphics
             text::SyntaxLanguage _lang;
             TTF_Font *_font;
             bool _caretVisible;
-            int _caretWait;
+            int _caretWait, _fontSize, _spacing;
+            std::string _saveFile;
 
             void moveCursorDown();
             void moveCursorUp();
@@ -100,6 +102,20 @@ namespace graphics
              * @return A vector with lines represented as std::strings
              */
             std::vector<std::string> getLines();
+
+            /**
+             * Gets the total height of the text with the current font.
+             *
+             * @param end Where to end.
+             *
+             * @return The total height in pixels.
+             */
+            int getTotalHeight(int end);
+
+            /**
+             * Saves text to file.
+             */
+            void save();
     };
 }
 

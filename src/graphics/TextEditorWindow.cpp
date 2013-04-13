@@ -1,6 +1,33 @@
 #include "graphics/TextEditorWindow.hpp"
 
 #include <iomanip>
+#include <fstream>
+
+bool ctrlDown;
+
+template <class T>
+int numDigits(T number)
+{
+    int digits = 0;
+    if (number < 0) digits = 1; // remove this line if '-' counts as a digit
+    while (number) {
+        number /= 10;
+        digits++;
+    }
+    return digits;
+}
+
+char* itoa(int val, int base)
+{
+	static char buf[32] = {0};
+
+	int i = 30;
+
+	for(; val && i ; --i, val /= base)
+		buf[i] = "0123456789abcdef"[val % base];
+
+	return &buf[i + 1];
+}
 
 namespace graphics
 {
@@ -25,8 +52,12 @@ namespace graphics
         _lang.load();
         _lang.loadColors("colorschemes/default.csch");
 
+        _saveFile = "save.txt";
+
         // Init the default font
-        _font = TTF_OpenFont("fonts/default.ttf", 14);
+        _fontSize = 16;
+        _font = TTF_OpenFont("fonts/default.ttf", _fontSize);
+        _spacing = 1;
         graphics::FontRenderer::setFont(_font);
 
         return r;
@@ -214,6 +245,14 @@ namespace graphics
                 for(unsigned int i = 0; i < _tabLen; ++i)
                     addChar(' ');
             }
+            else if(key.keysym.sym == SDLK_LCTRL || key.keysym.sym == SDLK_RCTRL)
+            {
+                ctrlDown = true;
+            }
+            else if(key.keysym.sym == SDLK_s && ctrlDown)
+            {
+                this->save();
+            }
             else
             {
                 // Get the unicode char
@@ -254,7 +293,31 @@ namespace graphics
         else // UP
         {
             // std::cout << "Key " << (int) key.keysym.sym << " AKA '" << kName.c_str() << "' was released." << std::endl;
+            if(key.keysym.sym == SDLK_LCTRL || key.keysym.sym == SDLK_RCTRL)
+            {
+                ctrlDown = false;
+            }
         }
+
+        // this->render();
+    }
+
+    void TextEditorWindow::save()
+    {
+        std::cout << "Saving" << std::endl;
+        std::ofstream file(_saveFile.c_str());
+
+        for(unsigned int y = 0; y < _lines.size(); ++y)
+        {
+            for(unsigned int x = 0; x < _lines[y]->size(); ++x)
+            {
+                file << (*(_lines[y]))[x];
+            }
+
+            file << std::endl;
+        }
+
+        file.close();
     }
 
     std::vector<std::string> TextEditorWindow::getLines()
@@ -278,7 +341,7 @@ namespace graphics
 
     void TextEditorWindow::render()
     {
-        SDL_FillRect(_target, 0, SDL_MapRGB(_target->format, 255, 255, 255));
+        SDL_FillRect(_target, 0, SDL_MapRGB(_target->format, _lang.colorScheme.defaultBG.r, _lang.colorScheme.defaultBG.g, _lang.colorScheme.defaultBG.b));
 
         std::vector<std::string> lines = this->getLines();
         highlightLines(lines, _lang.keywords);
@@ -290,15 +353,37 @@ namespace graphics
             std::vector<text::EditorChar> curLine = getEditorCharVector(lines[y], _lang.colorScheme);
             for(unsigned int x = 0; x < curLine.size(); ++x)
             {
-                graphics::FontRenderer::renderLetter(curLine[x].content, x * 7, y * 16, curLine[x].fgColor);
+                int lX, lY;
+
+                char line[x + 1];
+                for(unsigned int i = 0; i < x; ++i)
+                {
+                    line[i] = (*(_lines[y]))[i];
+                }
+                line[x] = '\0';
+
+                TTF_SizeText(_font, line, &lX, &lY);
+                // std::cout << lY << std::endl;
+                graphics::FontRenderer::renderLetter(curLine[x].content, lX + x * _spacing + 2, y * (lY - 2), curLine[x].fgColor);
             }
         }
 
         // Draw the caret
         if(_caretVisible)
         {
+            int lX, lY;
+
+            char line[_cursorX + 1];
+            for(unsigned int i = 0; i < _cursorX; ++i)
+            {
+                line[i] = (*(_lines[_cursorY]))[i];
+            }
+            line[_cursorX] = '\0';
+
+            TTF_SizeText(_font, line, &lX, &lY);
+
             graphics::Color col(0, 0, 0, 255);
-            graphics::line(_target, _cursorX * 7, _cursorY * 16 + 2, _cursorX * 7, _cursorY * 16 + 14, col);
+            graphics::line(_target, lX + _cursorX * _spacing + 2, _cursorY * (lY - 2), lX + _cursorX * _spacing + 2, _cursorY * (lY - 2) + (lY - 2), col);
         }
 
         ++_caretWait;

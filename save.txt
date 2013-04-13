@@ -1,0 +1,16 @@
+#include <stdio.h>
+
+int main(void)
+{
+    for(unsigned int i = 0; i < 20; ++i)
+    {
+        /*
+        std::cout << i << " * 2 = " << i + i << std::endl;
+        */
+        // Oops, this is not C++
+
+        printf("%i * 2 = %i", i, i + i);
+    }
+
+    return 0;
+}
