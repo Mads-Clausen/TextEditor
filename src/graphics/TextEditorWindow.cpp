@@ -66,6 +66,8 @@ namespace graphics
         _hlLines = this->getLines();
         highlightLines(_hlLines, _lang.keywords);
 
+        this->render();
+
         return r;
     }
 
@@ -246,6 +248,8 @@ namespace graphics
             default:
                 break;
         }
+
+        this->render();
     }
 
     void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
@@ -322,6 +326,8 @@ namespace graphics
 
             _hlLines = this->getLines();
             highlightLines(_hlLines, _lang.keywords);
+
+            this->render();
         }
         else // UP
         {
@@ -370,12 +376,21 @@ namespace graphics
         return l;
     }
 
+    void TextEditorWindow::update()
+    {
+        ++_caretWait;
+        if(_caretWait > 25)
+        {
+            _caretVisible = !_caretVisible;
+            _caretWait = 0;
+        }
+    }
+
     void TextEditorWindow::render()
     {
         SDL_FillRect(_target, 0, SDL_MapRGB(_target->format, _lang.colorScheme.defaultBG.r, _lang.colorScheme.defaultBG.g, _lang.colorScheme.defaultBG.b));
 
         std::vector<std::string> &lines = _hlLines;
-        highlightLines(lines, _lang.keywords);
 
         graphics::FontRenderer::setTarget(_target);
         graphics::FontRenderer::setFont(_font);
@@ -434,14 +449,7 @@ namespace graphics
             TTF_SizeText(_font, line, &lX, &lY);
 
             graphics::Color col(0, 0, 0, 255);
-            graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w, (_cursorY - _scrollY) * (lY - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w, (_cursorY - _scrollY) * (lY - 2) + (lY - 2), col);
-        }
-
-        ++_caretWait;
-        if(_caretWait > 25)
-        {
-            _caretVisible = !_caretVisible;
-            _caretWait = 0;
+            graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), col);
         }
 
         SDL_Rect pos;

@@ -120,6 +120,11 @@ namespace graphics
             void render();
 
             /**
+             * Updates stuff.
+             */
+            void update();
+
+            /**
              * Returns a vector with the lines.
              *
              * @return A vector with lines represented as std::strings

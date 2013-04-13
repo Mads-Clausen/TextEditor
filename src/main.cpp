@@ -17,8 +17,6 @@ int main(int argc, char **argv)
 
     teWin.init();
 
-    std::cout << "Clipboard data: " << text::TextUtils::getClipboardData() << std::endl;
-
     for(bool running = true; running;)
     {
         SDL_Event event;
@@ -44,7 +42,7 @@ int main(int argc, char **argv)
             }
         }
 
-        teWin.render();
+        teWin.update();
         graphics::GraphicsManager::flip();
     }
 
