@@ -115,6 +115,14 @@ namespace graphics
             void addLine();
 
             /**
+             * Attempts to move the cursor to the position where the user clicked.
+             *
+             * @param x The x coordinate.
+             * @param y The y coordinate.
+             */
+            void attemptMoveCursor(int x, int y);
+
+            /**
              * See documentation for graphics::GraphicsManager::render()
              */
             void render();

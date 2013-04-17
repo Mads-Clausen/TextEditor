@@ -119,7 +119,7 @@ namespace text
 
             #else
 
-            FILE* pipe = popen("xclip -o", "r");
+            FILE *pipe = popen("xclip -o", "r");
             if (!pipe) return "";
             char buffer[4096];
             std::string result = "";
@@ -137,7 +137,7 @@ namespace text
             return "";
         }
 
-        bool replace(std::string& str, const std::string& from, const std::string& to)
+        bool replace_str(std::string &str, std::string from, std::string to)
         {
             size_t start_pos = str.find(from);
             if(start_pos == std::string::npos)

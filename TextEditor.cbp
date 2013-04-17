@@ -40,6 +40,7 @@
 		<Unit filename="include/text/SyntaxLanguage.hpp" />
 		<Unit filename="include/text/TextUtils.hpp" />
 		<Unit filename="src/graphics/Color.cpp" />
+		<Unit filename="src/graphics/FontRenderer.cpp" />
 		<Unit filename="src/graphics/GraphicsManager.cpp" />
 		<Unit filename="src/graphics/TextEditorWindow.cpp" />
 		<Unit filename="src/main.cpp" />

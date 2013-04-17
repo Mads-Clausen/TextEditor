@@ -2,6 +2,7 @@
 
 #include <iomanip>
 #include <fstream>
+#include <sstream>
 
 bool ctrlDown;
 
@@ -45,6 +46,7 @@ namespace graphics
     {
         bool r = this->resize(w, h);
         _lines.push_back(new CharList); // Make sure we have one line to start with
+        _lines[0]->push_back(' ');
         _tabLen = 4;
 
         _lang.path = "languages/c++";
@@ -193,6 +195,11 @@ namespace graphics
 
     void TextEditorWindow::insertText(std::string s)
     {
+        std::stringstream ss;
+        for(unsigned int i = 0; i < _tabLen; ++i)
+            ss << ' ';
+
+        replace_str(s, "\t", ss.str());
         for(unsigned int i = 0; i < s.length(); ++i)
         {
             if(s[i] == '\n')
@@ -235,6 +242,47 @@ namespace graphics
         }
     }
 
+    void TextEditorWindow::attemptMoveCursor(int x, int y)
+    {
+        int cY = y / (_fontHeight - 2) + _scrollY, cX = 0;
+
+        if(cY >= _lines.size())
+            cY = _lines.size() - 1;
+
+        int last = 0;
+        bool found = false;
+        for(unsigned int i = 0; i < _lines[cY]->size(); ++i)
+        {
+            int xcpy = x;
+            std::string str;
+            for(unsigned int i2 = 0; i2 < i; ++i2)
+            {
+                std::stringstream ss;
+                ss << (*(_lines[cY]))[i2];
+                str.append(ss.str());
+            }
+
+            int newX, newY;
+            TTF_SizeText(_font, str.c_str(), &newX, &newY);
+
+            xcpy -= (numDigits(_lines.size() + 1) * 7 + 4 + 2) + i * _spacing;
+            if(xcpy >= last - _spacing && xcpy < newX)
+            {
+                cX = i - 1;
+
+                found = true;
+                break;
+            }
+
+            last = newX;
+        }
+
+        std::cout << "Moving cursor to (" << cX << ", " << cY << ")" << std::endl;
+
+        _cursorX = (found ? cX : (x - (numDigits(_lines.size() + 1) * 7 + 4 + 2) <= 0 ? 0 : _lines[cY]->size()));
+        _cursorY = cY;
+    }
+
     void TextEditorWindow::onMouseEvent(SDL_MouseButtonEvent &ev, bool dir)
     {
         switch(ev.button)
@@ -245,6 +293,9 @@ namespace graphics
             case SDL_BUTTON_WHEELUP:
                 this->scroll(true);
                 break;
+            case SDL_BUTTON_LEFT:
+                std::cout << "x = " << ev.x - _posX << std::endl;
+                this->attemptMoveCursor(ev.x - _posX, ev.y - _posY);
             default:
                 break;
         }
@@ -379,11 +430,13 @@ namespace graphics
     void TextEditorWindow::update()
     {
         ++_caretWait;
-        if(_caretWait > 25)
+        if(_caretWait > 80)
         {
             _caretVisible = !_caretVisible;
             _caretWait = 0;
         }
+
+        _caretVisible = true;
     }
 
     void TextEditorWindow::render()
@@ -449,7 +502,7 @@ namespace graphics
             TTF_SizeText(_font, line, &lX, &lY);
 
             graphics::Color col(0, 0, 0, 255);
-            graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), col);
+            graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), col);
         }
 
         SDL_Rect pos;

@@ -1,17 +1,5 @@
-#include <stdio.h>
-
-int main(void)
-{
-    unsigned int i = 0;
-    for(i < 20; ++i)
-    {
-        /*
-        std::cout << i << " * 2 = " << i + i << std::endl;
-        */
-        // Oops, this is not C++
-
-        printf("%i * 2 = %i", i, i + i);
-    }
-
-    return 0;
-}
+hallo jeg hedder mads
+min far er ikke sej
+/*
+blablabla
+*/ 

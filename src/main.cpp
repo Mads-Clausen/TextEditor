@@ -37,7 +37,7 @@ int main(int argc, char **argv)
                     teWin.onMouseEvent(event.button, true);
                     break;
                 case SDL_QUIT:
-                    exit(0);
+                    running = false;
                     break;
             }
         }

@@ -28,6 +28,17 @@ namespace text
         std::string getClipboardData();
 
         /**
+         * Replaces a substring inside a main string with another substring.
+         *
+         * @param str The main string.
+         * @param from The substring to be replaced.
+         * @param to The substring to replace with.
+         *
+         * @return Was anything replaced?
+         */
+        bool replace_str(std::string &str, std::string from, std::string to);
+
+        /**
          * Makes a single character lowercase.
          *
          * @param c The character.
