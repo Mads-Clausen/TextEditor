@@ -4,7 +4,7 @@ TextEditor
 A text editor written in C++.
 
 This is a screenshot of its current state:
-![Screenshot](http://i.imgur.com/CzERtNG.png)
+![Screenshot](http://anickyan.koding.com/img/editor.png)
 
 Compilation
 ===========
