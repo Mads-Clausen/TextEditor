@@ -35,3 +35,10 @@ If you are on Linux, you will also need to install xclip:
 sudo apt-get install xclip
 ```
 Alternatively use pacman or yum instead of apt-get
+
+
+Known bugs
+==========
+
+Sometimes, the caret will be drawn at an incorrect position.
+The cursor is at the right position, though.

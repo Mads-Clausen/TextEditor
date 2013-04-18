@@ -8,6 +8,7 @@ fg_chars 0 113 224 255 4
 fg_operators 157 143 255 255 1
 fg_comments 0 102 255 255 2
 fg_preprocess 154 255 135 255 3
+fg_caret 220 220 220 255 8
 
 bg_default 48 48 48 255 0
 bg_keywords 255 255 255 255 0

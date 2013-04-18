@@ -51,6 +51,8 @@ namespace graphics
 
     void line(SDL_Surface *surf, int x1, int y1, int x2, int y2, Color col)
     {
+        // std::cout << "Drawing line from (" << x1 << ", " << y1 << ") to " << "(" << x2 << ", " << y2 << ")" << std::endl;
+
         int x = x2 - x1, y = y2 - y1;
         int len = sqrt(x*x + y*y);
         int stepX = x / len, stepY = y / len;
@@ -59,7 +61,11 @@ namespace graphics
 
         for(int i = 0; i < len; ++i)
         {
+            if(x < 0 || x >= surf->w || y < 0 || y >= surf->h)
+                continue;
+
             plot(surf, x, y, col);
+            // std::cout << "Stepping from " << y << " to " << y + stepY << std::endl;
             x += stepX;
             y += stepY;
         }

@@ -63,7 +63,8 @@ namespace graphics
         charsFG,    charsBG,
         commentsFG, commentsBG,
         opsFG,      opsBG,
-        preprocFG, preprocBG;
+        preprocFG,  preprocBG,
+        caretFG,    caretBG;
 
         ColorScheme()
         {

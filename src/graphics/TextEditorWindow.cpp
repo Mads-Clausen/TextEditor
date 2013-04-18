@@ -57,7 +57,7 @@ namespace graphics
         _saveFile = "save.txt";
 
         // Init the default font
-        _fontSize = 16;
+        _fontSize = 14;
         _font = TTF_OpenFont("fonts/default.ttf", _fontSize);
         _lineNumFont = TTF_OpenFont("fonts/__line_nums.ttf", _fontSize);
         _spacing = 1;
@@ -119,13 +119,18 @@ namespace graphics
         {
             ++_cursorY; // Move down
 
-            if((_cursorY - _scrollY) == (int) _target->h / _fontHeight + 3 && _scrollY < (int) _lines.size())
+            if((_cursorY - _scrollY) >= (int) _target->h / _fontHeight && _scrollY < (int) _lines.size())
+            {
+                // std::cout << "Scrolling. " << (int) _target->h / _fontHeight << std::endl;
                 ++_scrollY;
+            }
 
             // Make sure that we're not trying to access non-existing chars
             if(_cursorX >= _lines[_cursorY]->size())
                 _cursorX = _lines[_cursorY]->size();
         }
+
+        // std::cout << _cursorY << " & " << _scrollY << std::endl;
     }
 
     void TextEditorWindow::moveCursorUp()
@@ -134,7 +139,7 @@ namespace graphics
         {
             --_cursorY;
 
-            if((_cursorY - _scrollY) < 4 && _scrollY > 0)
+            if(_scrollY > 0)
                 --_scrollY;
 
             // Make sure that we're not trying to access non-existing chars
@@ -247,13 +252,14 @@ namespace graphics
     {
         // True = up, false = down
         if(dir && _scrollY >= 3)
-        {
             _scrollY -= 3;
-        }
+        else if(dir && _scrollY < 3)
+            _scrollY = 0;
         else if(!dir && _scrollY < _lines.size() - (_target->h / _fontHeight + 3) && _lines.size() >= _target->h / _fontHeight + 3)
         {
             _scrollY += 3;
         }
+        // std::cout << "Scrolling" << std::endl;
     }
 
     void TextEditorWindow::attemptMoveCursor(int x, int y)
@@ -293,6 +299,7 @@ namespace graphics
 
         _cursorX = (found ? cX : (x - (numDigits(_lines.size() + 1) * 7 + 4 + 2) <= 0 ? 0 : _lines[cY]->size()));
         _cursorY = cY;
+        // std::cout << "Moved cursor to (" << _cursorX << ", " << _cursorY << ")" << std::endl;
     }
 
     void TextEditorWindow::onMouseEvent(SDL_MouseButtonEvent &ev, bool dir)
@@ -488,7 +495,7 @@ namespace graphics
         lnRectDst.x = lnRectDst.y = 0;
         int x, _unusedY;
         TTF_SizeText(_lineNumFont, lineNumString, &x, &_unusedY);
-        lnRectDst.w = x + 4;
+        lnRectDst.w = x + 6;
         lnRectDst.h = (_lines.size() * _fontSize < _target->h ? _target->h : _lines.size() * _fontSize);
         SDL_FillRect(_target, &lnRectDst, SDL_MapRGB(_target->format, _lang.colorScheme.defaultBG.r - 20, _lang.colorScheme.defaultBG.g - 20, _lang.colorScheme.defaultBG.b - 20));
 
@@ -543,8 +550,11 @@ namespace graphics
 
             TTF_SizeText(_font, line, &lX, &lY);
 
-            graphics::Color col(0, 0, 0, 255);
-            graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), col);
+            // std::cout << "Drawing caret at y " << (_cursorY - _scrollY) * (_fontHeight - 2) << " vs " << (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2) << std::endl;
+            graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), _lang.colorScheme.caretFG);
+
+            graphics::Color col(255, 0, 0, 255);
+            // graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 2), _target->w, (_cursorY - _scrollY) * (_fontHeight - 2), col);
         }
 
         SDL_Rect pos;
