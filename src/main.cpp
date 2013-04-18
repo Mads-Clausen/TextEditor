@@ -16,6 +16,7 @@ int main(int argc, char **argv)
         return false;
 
     teWin.init();
+    teWin.setActive(true);
 
     for(bool running = true; running;)
     {

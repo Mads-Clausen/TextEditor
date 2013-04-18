@@ -22,13 +22,15 @@ namespace graphics
     class TextEditorWindow : public GraphicsManager
     {
         private:
+            bool _active; // Is this the currently active editor?
+
             bool _shift, _capslock;
             CharMap _lines; // Vectorception?
             unsigned int _cursorX, _cursorY, _tabLen, _posX, _posY;
             SDL_Surface *_target;
             graphics::ColorScheme _colors;
             text::SyntaxLanguage _lang;
-            TTF_Font *_font;
+            TTF_Font *_font, *_lineNumFont;
             bool _caretVisible;
             int _caretWait, _fontSize, _spacing, _scrollY, _fontHeight;
             std::string _saveFile;
@@ -152,6 +154,23 @@ namespace graphics
              * Saves text to file.
              */
             void save();
+
+            /**
+             * Sets the activity of the editorwindow.
+             *
+             * @param act Is it active?
+             */
+             void setActive(bool act)
+             {
+                 _active = act;
+             }
+
+             /**
+              * Resize the font
+              *
+              * @param size The new fontsize
+              */
+             void resizeFont(int size);
     };
 }
 

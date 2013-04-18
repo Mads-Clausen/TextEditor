@@ -121,11 +121,11 @@ namespace text
 
             FILE *pipe = popen("xclip -o", "r");
             if (!pipe) return "";
-            char buffer[4096];
+            char buffer[65536]; // Should be plenty of space
             std::string result = "";
             while(!feof(pipe))
             {
-                if(fgets(buffer, 4096, pipe) != NULL)
+                if(fgets(buffer, 65536, pipe) != NULL)
                     result += buffer;
             }
             pclose(pipe);
@@ -468,11 +468,11 @@ namespace text
             return multiline;
         }
 
-        void highlightLines(std::vector<std::string> &lines, std::vector<std::string> &keywords)
+        void highlightLines(std::vector<std::string> &lines, std::vector<std::string> &keywords, int start, int end)
         {
             bool multiline = false; // In a multiline comment?
 
-            for(unsigned int i = 0; i < lines.size(); ++i)
+            for(unsigned int i = (start < 0 ? 0 : start); i < (end < 0 ? lines.size() : (end > lines.size() ? lines.size() : end)); ++i)
             {
                 multiline = applySyntaxHighlighting(lines[i], keywords, multiline);
             }

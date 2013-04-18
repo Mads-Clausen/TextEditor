@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-bool ctrlDown;
+bool ctrlDown, altDown;
 
 template <class T>
 int numDigits(T number)
@@ -59,6 +59,7 @@ namespace graphics
         // Init the default font
         _fontSize = 16;
         _font = TTF_OpenFont("fonts/default.ttf", _fontSize);
+        _lineNumFont = TTF_OpenFont("fonts/__line_nums.ttf", _fontSize);
         _spacing = 1;
         graphics::FontRenderer::setFont(_font);
 
@@ -71,6 +72,19 @@ namespace graphics
         this->render();
 
         return r;
+    }
+
+    void TextEditorWindow::resizeFont(int size)
+    {
+        TTF_CloseFont(_font);
+        _fontSize = size;
+        _font = TTF_OpenFont("fonts/default.ttf", _fontSize);
+        _lineNumFont = TTF_OpenFont("fonts/__line_nums.ttf", _fontSize);
+
+        graphics::FontRenderer::setFont(_font);
+
+        int x;
+        TTF_SizeText(_font, "1", &x, &_fontHeight);
     }
 
     bool TextEditorWindow::resize(int w, int h)
@@ -232,13 +246,13 @@ namespace graphics
     void TextEditorWindow::scroll(bool dir)
     {
         // True = up, false = down
-        if(dir && _scrollY > 0)
+        if(dir && _scrollY >= 3)
         {
-            --_scrollY;
+            _scrollY -= 3;
         }
         else if(!dir && _scrollY < _lines.size() - (_target->h / _fontHeight + 3) && _lines.size() >= _target->h / _fontHeight + 3)
         {
-            ++_scrollY;
+            _scrollY += 3;
         }
     }
 
@@ -277,34 +291,49 @@ namespace graphics
             last = newX;
         }
 
-        std::cout << "Moving cursor to (" << cX << ", " << cY << ")" << std::endl;
-
         _cursorX = (found ? cX : (x - (numDigits(_lines.size() + 1) * 7 + 4 + 2) <= 0 ? 0 : _lines[cY]->size()));
         _cursorY = cY;
     }
 
     void TextEditorWindow::onMouseEvent(SDL_MouseButtonEvent &ev, bool dir)
     {
+        if(!_active)
+            return;
+
         switch(ev.button)
         {
             case SDL_BUTTON_WHEELDOWN:
-                this->scroll(false);
+                if(ctrlDown)
+                    this->resizeFont(_fontSize + 1);
+                else
+                    this->scroll(false);
+
                 break;
             case SDL_BUTTON_WHEELUP:
-                this->scroll(true);
+                if(ctrlDown)
+                    this->resizeFont(_fontSize - 1);
+                else
+                    this->scroll(true);
+
                 break;
             case SDL_BUTTON_LEFT:
-                std::cout << "x = " << ev.x - _posX << std::endl;
                 this->attemptMoveCursor(ev.x - _posX, ev.y - _posY);
+                break;
             default:
                 break;
         }
 
+
+        _hlLines = this->getLines();
+        highlightLines(_hlLines, _lang.keywords, _scrollY, _scrollY + _target->h / _fontHeight + 5);
         this->render();
     }
 
     void TextEditorWindow::onKeyEvent(SDL_KeyboardEvent &key, bool dir)
     {
+        if(!_active)
+            return;
+
         // Toggle capslock
         if(key.keysym.sym == SDLK_CAPSLOCK)
         {
@@ -366,7 +395,7 @@ namespace graphics
             else
             {
                 // Get the unicode char
-                if(kName < 0x80 && kName > 0)
+                if(!ctrlDown && !altDown && kName < 0x80 && kName > 0)
                 {
                     this->addChar(kName);
                 }
@@ -376,8 +405,7 @@ namespace graphics
             }
 
             _hlLines = this->getLines();
-            highlightLines(_hlLines, _lang.keywords);
-
+            highlightLines(_hlLines, _lang.keywords, _scrollY, _scrollY + _target->h / _fontHeight + 5);
             this->render();
         }
         else // UP
@@ -429,6 +457,9 @@ namespace graphics
 
     void TextEditorWindow::update()
     {
+        if(!_active)
+            return;
+
         ++_caretWait;
         if(_caretWait > 80)
         {
@@ -441,17 +472,23 @@ namespace graphics
 
     void TextEditorWindow::render()
     {
-        SDL_FillRect(_target, 0, SDL_MapRGB(_target->format, _lang.colorScheme.defaultBG.r, _lang.colorScheme.defaultBG.g, _lang.colorScheme.defaultBG.b));
+        if(!_active)
+            return;
 
+        SDL_FillRect(_target, 0, SDL_MapRGB(_target->format, _lang.colorScheme.defaultBG.r, _lang.colorScheme.defaultBG.g, _lang.colorScheme.defaultBG.b));
         std::vector<std::string> &lines = _hlLines;
 
         graphics::FontRenderer::setTarget(_target);
         graphics::FontRenderer::setFont(_font);
 
         int lnDigits = numDigits(_lines.size() + 1);
+        char *lineNumString = itoa(_lines.size(), 10);
+
         SDL_Rect lnRectDst;
         lnRectDst.x = lnRectDst.y = 0;
-        lnRectDst.w = lnDigits * 7 + 4;
+        int x, _unusedY;
+        TTF_SizeText(_lineNumFont, lineNumString, &x, &_unusedY);
+        lnRectDst.w = x + 4;
         lnRectDst.h = (_lines.size() * _fontSize < _target->h ? _target->h : _lines.size() * _fontSize);
         SDL_FillRect(_target, &lnRectDst, SDL_MapRGB(_target->format, _lang.colorScheme.defaultBG.r - 20, _lang.colorScheme.defaultBG.g - 20, _lang.colorScheme.defaultBG.b - 20));
 
@@ -477,13 +514,18 @@ namespace graphics
                     char *l = itoa(y + 1, 10);
 
                     graphics::Color c(_lang.colorScheme.defaultFG.r + 40, _lang.colorScheme.defaultFG.g + 40, _lang.colorScheme.defaultFG.b + 40, 255);
+                    graphics::Color bgC(_lang.colorScheme.defaultBG.r - 20, _lang.colorScheme.defaultBG.g - 20, _lang.colorScheme.defaultBG.b - 20, 255);
                     for(unsigned int i = 0; i < lnDigits; ++i)
                     {
-                        graphics::FontRenderer::renderLetter(l[i], i * 7 + 2, (y - _scrollY) * (lY - 2), c);
+                        graphics::FontRenderer::setFont(_lineNumFont);
+                        int w, __h;
+                        TTF_SizeText(_lineNumFont, std::string(lineNumString).substr(0, i).c_str(), &w, &__h);
+                        graphics::FontRenderer::renderLetter(l[i], w + 2, (y - _scrollY) * (lY - 2), c, bgC);
+                        graphics::FontRenderer::setFont(_font);
                     }
                 }
 
-                graphics::FontRenderer::renderLetter(curLine[x].content, lX + x * _spacing + 2 + lnRectDst.w, (y - _scrollY) * (lY - 2), curLine[x].fgColor);
+                graphics::FontRenderer::renderLetter(curLine[x].content, lX + x * _spacing + 2 + lnRectDst.w, (y - _scrollY) * (lY - 2), curLine[x].fgColor, curLine[x].bgColor);
             }
         }
 
@@ -509,5 +551,6 @@ namespace graphics
         pos.x = _posX;
         pos.y = _posY;
         SDL_BlitSurface(_target, 0, _screen, &pos);
+        GraphicsManager::flip();
     }
 }

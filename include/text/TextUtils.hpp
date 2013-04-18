@@ -82,8 +82,10 @@ namespace text
          *
          * @param lines The lines to highlight.
          * @param keywords The keywords(for, if, while, etc.)
+         * @param start The line to start at
+         * @param end The line to end at
          */
-        void highlightLines(std::vector<std::string> &lines, std::vector<std::string> &keywords);
+        void highlightLines(std::vector<std::string> &lines, std::vector<std::string> &keywords, int start = -1, int end = -1);
 
         /**
          * Replaces all occurences of a substring with another one.
