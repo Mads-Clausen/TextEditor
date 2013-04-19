@@ -36,9 +36,16 @@ sudo apt-get install xclip
 ```
 Alternatively use pacman or yum instead of apt-get
 
+Features
+========
+
+* Syntax highlighting for C++
+* Pasting
+* Cursor positioning with mouse
+* Debug mode - press F1 to enable
+* Multiple editors. Press PAGE DOWN to select #1, PAGE UP to select #2
 
 Known bugs
 ==========
 
-Sometimes, the caret will be drawn at an incorrect position.
-The cursor is at the right position, though.
+None, currently.

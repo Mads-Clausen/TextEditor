@@ -36,6 +36,8 @@ namespace graphics
             std::string _saveFile;
             std::vector<std::string> _hlLines;
 
+            bool _debug; // Debug printings are enabled if true
+
             void moveCursorDown();
             void moveCursorUp();
             void moveCursorLeft();

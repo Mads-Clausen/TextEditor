@@ -398,6 +398,10 @@ namespace graphics
             {
                 this->insertText(text::TextUtils::getClipboardData());
             }
+            else if(key.keysym.sym == SDLK_F1)
+            {
+                _debug = !_debug;
+            }
             else if(key.keysym.sym == SDLK_LSHIFT || key.keysym.sym == SDLK_RSHIFT || key.keysym.sym == SDLK_RALT || key.keysym.sym == SDLK_LALT || key.keysym.sym == SDLK_CAPSLOCK) {}
             else
             {
@@ -550,11 +554,23 @@ namespace graphics
 
             TTF_SizeText(_font, line, &lX, &lY);
 
+            if(_debug)
+            {
+                // Draw some reference lines
+                graphics::Color col(255, 0, 0, 255);
+                graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 2), _target->w, (_cursorY - _scrollY) * (_fontHeight - 2), col);
+
+                col.r = 0;
+                col.b = 255;
+                graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), _target->w, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), col);
+
+                col.b = 0;
+                col.g = 255;
+                graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, 0, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, _target->h, col);
+            }
+
             // std::cout << "Drawing caret at y " << (_cursorY - _scrollY) * (_fontHeight - 2) << " vs " << (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2) << std::endl;
             graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), _lang.colorScheme.caretFG);
-
-            graphics::Color col(255, 0, 0, 255);
-            // graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 2), _target->w, (_cursorY - _scrollY) * (_fontHeight - 2), col);
         }
 
         SDL_Rect pos;

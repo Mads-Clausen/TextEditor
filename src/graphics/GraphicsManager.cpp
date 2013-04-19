@@ -44,8 +44,6 @@ namespace graphics
     {
         int color = SDL_MapRGB(surf->format, col.r, col.g, col.b);
         Uint32 *framebuffer = (Uint32*) surf->pixels;
-        y %= surf->w;
-        x %= surf->h;
         framebuffer[y * surf->w + x ] = color;
     }
 
