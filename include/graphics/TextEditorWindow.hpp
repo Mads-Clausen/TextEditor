@@ -14,6 +14,13 @@
 #include "text/SyntaxLanguage.hpp"
 using namespace text::TextUtils;
 
+struct Cursor
+{
+    int x, y;
+
+    Cursor(int _x, int _y) : x(_x), y(_y) {}
+};
+
 namespace graphics
 {
     typedef std::vector<char> CharList;
@@ -26,7 +33,7 @@ namespace graphics
 
             bool _shift, _capslock;
             CharMap _lines; // Vectorception?
-            unsigned int _cursorX, _cursorY, _tabLen, _posX, _posY;
+            unsigned int _tabLen, _posX, _posY;
             SDL_Surface *_target;
             graphics::ColorScheme _colors;
             text::SyntaxLanguage _lang;
@@ -36,18 +43,17 @@ namespace graphics
             std::string _saveFile;
             std::vector<std::string> _hlLines;
 
+            std::vector<Cursor> _cursors;
+
             bool _debug; // Debug printings are enabled if true
 
-            void moveCursorDown();
-            void moveCursorUp();
-            void moveCursorLeft();
-            void moveCursorRight();
+            void moveCursorDown(Cursor*);
+            void moveCursorUp(Cursor*);
+            void moveCursorLeft(Cursor*);
+            void moveCursorRight(Cursor*);
 
         public:
-            TextEditorWindow()
-            {
-                _cursorX = _cursorY = 0;
-            }
+            TextEditorWindow() {}
 
             virtual ~TextEditorWindow();
 
@@ -121,10 +127,11 @@ namespace graphics
             /**
              * Attempts to move the cursor to the position where the user clicked.
              *
+             * @param c The cursor to move.
              * @param x The x coordinate.
              * @param y The y coordinate.
              */
-            void attemptMoveCursor(int x, int y);
+            void attemptMoveCursor(Cursor *c, int x, int y);
 
             /**
              * See documentation for graphics::GraphicsManager::render()

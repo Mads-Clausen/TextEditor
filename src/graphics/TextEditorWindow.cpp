@@ -34,6 +34,8 @@ namespace graphics
 {
     TextEditorWindow::~TextEditorWindow()
     {
+        std::cout << "Shutting down TextEditorWindow" << std::endl;
+
         // Free the target
         if(_target != 0) SDL_FreeSurface(_target);
 
@@ -68,6 +70,8 @@ namespace graphics
 
         _hlLines = this->getLines();
         highlightLines(_hlLines, _lang.keywords);
+
+        _cursors.push_back(Cursor(0, 0));
 
         this->render();
 
@@ -112,8 +116,10 @@ namespace graphics
         return true;
     }
 
-    void TextEditorWindow::moveCursorDown()
+    void TextEditorWindow::moveCursorDown(Cursor *cur)
     {
+        int &_cursorX = cur->x, &_cursorY = cur->y;
+
         // We can't really move down if we're at the bottom, eh?
         if(_cursorY < _lines.size() - 1)
         {
@@ -129,12 +135,12 @@ namespace graphics
             if(_cursorX >= _lines[_cursorY]->size())
                 _cursorX = _lines[_cursorY]->size();
         }
-
-        // std::cout << _cursorY << " & " << _scrollY << std::endl;
     }
 
-    void TextEditorWindow::moveCursorUp()
+    void TextEditorWindow::moveCursorUp(Cursor *cur)
     {
+        int &_cursorX = cur->x, &_cursorY = cur->y;
+
         if(_cursorY > 0)
         {
             --_cursorY;
@@ -148,25 +154,29 @@ namespace graphics
         }
     }
 
-    void TextEditorWindow::moveCursorRight()
+    void TextEditorWindow::moveCursorRight(Cursor *cur)
     {
+        int &_cursorX = cur->x, &_cursorY = cur->y;
+
         // Check that we're not moving further than the line is long... what?
         if(_cursorX < _lines[_cursorY]->size())
             ++_cursorX;
         else
             // Attempt to move down if the end of the line is reached
-            this->moveCursorDown();
+            this->moveCursorDown(cur);
     }
 
-    void TextEditorWindow::moveCursorLeft()
+    void TextEditorWindow::moveCursorLeft(Cursor *cur)
     {
+        int &_cursorX = cur->x, &_cursorY = cur->y;
+
         // Check if we're trying to move into a wall
         if(_cursorX > 0)
             --_cursorX;
         else
         {   // If we are, attempt to move up
             unsigned int oldCY = _cursorY;
-            this->moveCursorUp();
+            this->moveCursorUp(cur);
 
             // Move to the end of the line if the up-move was successful
             if(_cursorY != oldCY)
@@ -176,76 +186,95 @@ namespace graphics
 
     void TextEditorWindow::addChar(char c)
     {
-        // std::cout << "Adding char '" << c << "' at (" << _cursorX << ", " << _cursorY << ")" << std::endl;
-        _lines[_cursorY]->insert(_lines[_cursorY]->begin() + _cursorX, c); // Insert the char
+        for(unsigned int i = 0; i < _cursors.size(); ++i)
+        {
+            int &_cursorX = _cursors[i].x, &_cursorY = _cursors[i].y;
 
-        // std::cout << "Char at (" << _cursorX << ", " << _cursorY << "): '" << (*(_lines[_cursorY]))[_cursorX] << "'" << std::endl;
-        this->moveCursorRight(); // Go to the right
+            // std::cout << "Adding char '" << c << "' at (" << _cursorX << ", " << _cursorY << ")" << std::endl;
+            _lines[_cursorY]->insert(_lines[_cursorY]->begin() + _cursorX, c); // Insert the char
+
+            this->moveCursorRight(&_cursors[i]);
+        }
     }
 
     void TextEditorWindow::removeChar()
     {
-        if(_cursorX > 0)
+        for(unsigned int i = 0; i < _cursors.size(); ++i)
         {
-            // std::cout << "Removing char at (" << (_cursorX - 1) << ", " << _cursorY << ")" << std::endl;
-            _lines[_cursorY]->erase(_lines[_cursorY]->begin() + (_cursorX - 1));
-            this->moveCursorLeft();
-        }
-        else
-        {
-            // Make sure we're not moving stuff to line -1
-            if(_cursorY > 0)
+            int &_cursorX = _cursors[i].x, &_cursorY = _cursors[i].y;
+
+            if(_cursorX > 0)
             {
-                unsigned int oldSize = _lines[_cursorY - 1]->size();
+                // std::cout << "Removing char at (" << (_cursorX - 1) << ", " << _cursorY << ")" << std::endl;
+                _lines[_cursorY]->erase(_lines[_cursorY]->begin() + (_cursorX - 1));
+                this->moveCursorLeft(&_cursors[i]);
+            }
+            else
+            {
+                // Make sure we're not moving stuff to line -1
+                if(_cursorY > 0)
+                {
+                    unsigned int oldSize = _lines[_cursorY - 1]->size();
 
-                // Move current line above
-                for(unsigned int x = 0; x < _lines[_cursorY]->size(); ++x)
-                    // We can push since we're appending to the end of the line
-                    _lines[_cursorY - 1]->push_back((*(_lines[_cursorY]))[x]);
+                    // Move current line above
+                    for(unsigned int x = 0; x < _lines[_cursorY]->size(); ++x)
+                        // We can push since we're appending to the end of the line
+                        _lines[_cursorY - 1]->push_back((*(_lines[_cursorY]))[x]);
 
-                // Remove old line
-                _lines.erase(_lines.begin() + _cursorY);
+                    // Remove old line
+                    _lines.erase(_lines.begin() + _cursorY);
 
-                this->moveCursorUp();
-                _cursorX = oldSize;
+                    this->moveCursorUp(&_cursors[i]);
+                    _cursorX = oldSize;
+                }
             }
         }
     }
 
     void TextEditorWindow::insertText(std::string s)
     {
-        std::stringstream ss;
-        for(unsigned int i = 0; i < _tabLen; ++i)
-            ss << ' ';
-
-        replace_str(s, "\t", ss.str());
-        for(unsigned int i = 0; i < s.length(); ++i)
+        for(unsigned int i = 0; i < _cursors.size(); ++i)
         {
-            if(s[i] == '\n')
-            {
-                this->addLine();
-                continue;
-            }
+            int &_cursorX = _cursors[i].x, &_cursorY = _cursors[i].y;
 
-            this->addChar(s[i]);
+            std::stringstream ss;
+            for(unsigned int i = 0; i < _tabLen; ++i)
+                ss << ' ';
+
+            replace_str(s, "\t", ss.str());
+            for(unsigned int i = 0; i < s.length(); ++i)
+            {
+                if(s[i] == '\n')
+                {
+                    this->addLine();
+                    continue;
+                }
+
+                this->addChar(s[i]);
+            }
         }
     }
 
     void TextEditorWindow::addLine()
     {
-        _lines.insert(_lines.begin() + (_cursorY + 1), new CharList());
+        for(unsigned int i = 0; i < _cursors.size(); ++i)
+        {
+            int &_cursorX = _cursors[i].x, &_cursorY = _cursors[i].y;
 
-        // Move the rest of the current line to the one below
-        ++_cursorX;
-        for(unsigned int x = _cursorX - 1; x < _lines[_cursorY]->size(); ++x)
-            _lines[_cursorY + 1]->push_back((*(_lines[_cursorY]))[x]);
+            _lines.insert(_lines.begin() + (_cursorY + 1), new CharList());
 
-        for(unsigned int x = _cursorX - 1; x < _lines[_cursorY]->size();) // No need to increment x, as we are deleting chars
-            _lines[_cursorY]->erase(_lines[_cursorY]->begin() + x);
+            // Move the rest of the current line to the one below
+            ++_cursorX;
+            for(unsigned int x = _cursorX - 1; x < _lines[_cursorY]->size(); ++x)
+                _lines[_cursorY + 1]->push_back((*(_lines[_cursorY]))[x]);
 
-        this->moveCursorDown();
+            for(unsigned int x = _cursorX - 1; x < _lines[_cursorY]->size();) // No need to increment x, as we are deleting chars
+                _lines[_cursorY]->erase(_lines[_cursorY]->begin() + x);
 
-        _cursorX = 0;
+            this->moveCursorDown(&_cursors[i]);
+
+            _cursorX = 0;
+        }
     }
 
     void TextEditorWindow::scroll(bool dir)
@@ -262,7 +291,7 @@ namespace graphics
         // std::cout << "Scrolling" << std::endl;
     }
 
-    void TextEditorWindow::attemptMoveCursor(int x, int y)
+    void TextEditorWindow::attemptMoveCursor(Cursor *c, int x, int y)
     {
         int cY = y / (_fontHeight - 2) + _scrollY, cX = 0;
 
@@ -297,8 +326,8 @@ namespace graphics
             last = newX;
         }
 
-        _cursorX = (found ? cX : (x - (numDigits(_lines.size() + 1) * 7 + 4 + 2) <= 0 ? 0 : _lines[cY]->size()));
-        _cursorY = cY;
+        c->x = (found ? cX : (x - (numDigits(_lines.size() + 1) * 7 + 4 + 2) <= 0 ? 0 : _lines[cY]->size()));
+        c->y = cY;
         // std::cout << "Moved cursor to (" << _cursorX << ", " << _cursorY << ")" << std::endl;
     }
 
@@ -324,7 +353,17 @@ namespace graphics
 
                 break;
             case SDL_BUTTON_LEFT:
-                this->attemptMoveCursor(ev.x - _posX, ev.y - _posY);
+                if(!ctrlDown)
+                {
+                    _cursors.clear();
+                    _cursors.push_back(Cursor(0, 0));
+                    this->attemptMoveCursor(&(_cursors[0]), ev.x - _posX, ev.y - _posY);
+                }
+                else
+                {
+                    _cursors.push_back(Cursor(0, 0));
+                    this->attemptMoveCursor(&(_cursors[_cursors.size() - 1]), ev.x - _posX, ev.y - _posY);
+                }
                 break;
             default:
                 break;
@@ -359,19 +398,31 @@ namespace graphics
         {
             if(key.keysym.sym == SDLK_DOWN)
             {
-                this->moveCursorDown();
+                int cX = _cursors[_cursors.size() - 1].x, cY = _cursors[_cursors.size() - 1].y;
+                _cursors.clear();
+                _cursors.push_back(Cursor(cX, cY));
+                this->moveCursorDown(&_cursors[0]);
             }
             else if(key.keysym.sym == SDLK_LEFT)
             {
-                this->moveCursorLeft();
+                int cX = _cursors[_cursors.size() - 1].x, cY = _cursors[_cursors.size() - 1].y;
+                _cursors.clear();
+                _cursors.push_back(Cursor(cX, cY));
+                this->moveCursorLeft(&_cursors[0]);
             }
             else if(key.keysym.sym == SDLK_RIGHT)
             {
-                this->moveCursorRight();
+                int cX = _cursors[_cursors.size() - 1].x, cY = _cursors[_cursors.size() - 1].y;
+                _cursors.clear();
+                _cursors.push_back(Cursor(cX, cY));
+                this->moveCursorRight(&_cursors[0]);
             }
             else if(key.keysym.sym == SDLK_UP)
             {
-                this->moveCursorUp();
+                int cX = _cursors[_cursors.size() - 1].x, cY = _cursors[_cursors.size() - 1].y;
+                _cursors.clear();
+                _cursors.push_back(Cursor(cX, cY));
+                this->moveCursorUp(&_cursors[0]);
             }
             else if(key.keysym.sym == SDLK_BACKSPACE)
             {
@@ -543,34 +594,39 @@ namespace graphics
         // Draw the caret
         if(_caretVisible)
         {
-            int lX, lY;
-
-            char line[_cursorX + 1];
-            for(unsigned int i = 0; i < _cursorX; ++i)
+            for(unsigned int i = 0; i < _cursors.size(); ++i)
             {
-                line[i] = (*(_lines[_cursorY]))[i];
+                int &_cursorX = _cursors[i].x, &_cursorY = _cursors[i].y;
+
+                int lX, lY;
+
+                char line[_cursorX + 1];
+                for(unsigned int i = 0; i < _cursorX; ++i)
+                {
+                    line[i] = (*(_lines[_cursorY]))[i];
+                }
+                line[_cursorX] = '\0';
+
+                TTF_SizeText(_font, line, &lX, &lY);
+
+                if(_debug)
+                {
+                    // Draw some reference lines
+                    graphics::Color col(255, 0, 0, 255);
+                    graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2), col);
+
+                    col.r = 0;
+                    col.b = 255;
+                    graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), col);
+
+                    col.b = 0;
+                    col.g = 255;
+                    graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, 0, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, _target->h, col);
+                }
+
+                 // std::cout << "Drawing caret at y " << (_cursorY - _scrollY) * (_fontHeight - 2) << " vs " << (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2) << std::endl;
+                graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), _lang.colorScheme.caretFG);
             }
-            line[_cursorX] = '\0';
-
-            TTF_SizeText(_font, line, &lX, &lY);
-
-            if(_debug)
-            {
-                // Draw some reference lines
-                graphics::Color col(255, 0, 0, 255);
-                graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 2), _target->w, (_cursorY - _scrollY) * (_fontHeight - 2), col);
-
-                col.r = 0;
-                col.b = 255;
-                graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), _target->w, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), col);
-
-                col.b = 0;
-                col.g = 255;
-                graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, 0, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, _target->h, col);
-            }
-
-            // std::cout << "Drawing caret at y " << (_cursorY - _scrollY) * (_fontHeight - 2) << " vs " << (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2) << std::endl;
-            graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), _lang.colorScheme.caretFG);
         }
 
         SDL_Rect pos;
