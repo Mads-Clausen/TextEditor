@@ -5,6 +5,7 @@ A text editor written in C++.
 
 This is a screenshot of its current state:
 ![Screenshot](http://anickyan.koding.com/img/editor3.png)
+
 Notice the multiple cursors. Screenshot with debug mode enabled:
 ![Screenshot](http://anickyan.koding.com/img/editor3_dbg.png)
 
