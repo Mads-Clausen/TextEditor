@@ -510,6 +510,14 @@ namespace graphics
                         std::cout << "Selection from (" << _selections[0].start.x << ", " << _selections[0].start.y << ") to (" << _selections[0].end.x << ", " << _selections[0].end.y << ")" << std::endl;
                         //*/
                     }
+                    else if(ctrlDown)
+                    {
+                        _selections.clear();
+
+                        Cursor c;
+                        this->attemptMoveCursor(&c, ev.x - _posX, ev.y - _posY);
+                        _cursors.push_back(c);
+                    }
                     else
                     {
                         _selections.clear();
