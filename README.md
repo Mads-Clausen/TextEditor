@@ -47,6 +47,7 @@ Features
 * Cursor positioning with mouse
 * Debug mode - press F1 to enable
 * Multiple editors. Press PAGE DOWN to select #1, PAGE UP to select #2
+* Selections. Click one place, and shift-click somewhere else to select.
 
 Known bugs
 ==========

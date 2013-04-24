@@ -11,10 +11,10 @@ fg_preprocess 154 255 135 255 3
 fg_caret 220 220 220 255 8
 
 bg_default 48 48 48 255 0
-bg_keywords 255 255 255 255 0
-bg_numbers 255 255 255 255 0
-bg_strings 255 255 255 255 0
-bg_chars 255 255 255 255 0
-bg_operators 255 255 255 255 0
-bg_comments 255 255 255 255 0
-bg_preprocess 255 255 255 255 0
+bg_keywords 48 48 48 255 0
+bg_numbers 48 48 48 255 0
+bg_strings 48 48 48 255 0
+bg_chars 48 48 48 255 0
+bg_operators 48 48 48 255 0
+bg_comments 48 48 48 255 0
+bg_preprocess 48 48 48 255 0

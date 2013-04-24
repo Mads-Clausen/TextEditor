@@ -4,7 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-bool ctrlDown, altDown;
+bool ctrlDown, altDown, shiftDown;
 
 template <class T>
 int numDigits(T number)
@@ -28,6 +28,30 @@ char* itoa(int val, int base)
 		buf[i] = "0123456789abcdef"[val % base];
 
 	return &buf[i + 1];
+}
+
+bool inSelection(int x, int y, Selection &sel)
+{
+    if(y > sel.start.y && y < sel.end.y)
+        return true;
+
+    if(y == sel.start.y && x >= sel.start.x)
+    {
+        if(y == sel.end.y && x > sel.end.x)
+            return false;
+
+        return true;
+    }
+
+    if(y == sel.end.y && x <= sel.end.x)
+    {
+        if(y == sel.start.y && x < sel.start.x)
+            return false;
+
+        return true;
+    }
+
+    return false;
 }
 
 namespace graphics
@@ -65,15 +89,16 @@ namespace graphics
         _spacing = 1;
         graphics::FontRenderer::setFont(_font);
 
-        int x;
-        TTF_SizeText(_font, "1", &x, &_fontHeight);
+        TTF_SizeText(_font, "1", &_fontWidth, &_fontHeight);
 
         _hlLines = this->getLines();
         highlightLines(_hlLines, _lang.keywords);
 
         _cursors.push_back(Cursor(0, 0));
 
+        this->setActive(true);
         this->render();
+        this->setActive(false);
 
         return r;
     }
@@ -87,8 +112,7 @@ namespace graphics
 
         graphics::FontRenderer::setFont(_font);
 
-        int x;
-        TTF_SizeText(_font, "1", &x, &_fontHeight);
+        TTF_SizeText(_font, "1", &_fontWidth, &_fontHeight);
     }
 
     bool TextEditorWindow::resize(int w, int h)
@@ -134,6 +158,9 @@ namespace graphics
             // Make sure that we're not trying to access non-existing chars
             if(_cursorX >= _lines[_cursorY]->size())
                 _cursorX = _lines[_cursorY]->size();
+
+            if((_cursorX - _scrollX) < 18)
+                _scrollX = 0;
         }
     }
 
@@ -151,6 +178,9 @@ namespace graphics
             // Make sure that we're not trying to access non-existing chars
             if(_cursorX >= _lines[_cursorY]->size())
                 _cursorX = _lines[_cursorY]->size();
+
+            if((_cursorX - _scrollX) < 18)
+                _scrollX = 0;
         }
     }
 
@@ -160,7 +190,12 @@ namespace graphics
 
         // Check that we're not moving further than the line is long... what?
         if(_cursorX < _lines[_cursorY]->size())
+        {
             ++_cursorX;
+
+            if((_cursorX - _scrollX) >= _target->w / _fontWidth - 12 && _scrollX < _lines[_cursorY]->size())
+                ++_scrollX;
+        }
         else
             // Attempt to move down if the end of the line is reached
             this->moveCursorDown(cur);
@@ -172,7 +207,12 @@ namespace graphics
 
         // Check if we're trying to move into a wall
         if(_cursorX > 0)
+        {
             --_cursorX;
+
+            if((_cursorX - _scrollX) < 6 && _scrollX > 0)
+                --_scrollX;
+        }
         else
         {   // If we are, attempt to move up
             unsigned int oldCY = _cursorY;
@@ -186,11 +226,34 @@ namespace graphics
 
     void TextEditorWindow::addChar(char c)
     {
+        for(unsigned int i = 0; i < _selections.size(); ++i)
+        {
+            Selection &sel = _selections[i];
+
+            for(int y = _lines.size() - 1; y >= 0; --y)
+            {
+                for(int x = _lines[y]->size() - 1; x >= 0; --x)
+                {
+                    if(inSelection(x, y, sel))
+                    {
+                        _lines[y]->erase(_lines[y]->begin() + x);
+                        if(_lines[y]->size() <= 0)
+                        {
+                            _lines.erase(_lines.begin() + y);
+                        }
+                    }
+                }
+            }
+        }
+
+        _selections.clear();
+
         for(unsigned int i = 0; i < _cursors.size(); ++i)
         {
             int &_cursorX = _cursors[i].x, &_cursorY = _cursors[i].y;
 
             // std::cout << "Adding char '" << c << "' at (" << _cursorX << ", " << _cursorY << ")" << std::endl;
+            std::cout << "Adding char at (" << _cursorX << ", " << _cursorY << ")" << std::endl;
             _lines[_cursorY]->insert(_lines[_cursorY]->begin() + _cursorX, c); // Insert the char
 
             this->moveCursorRight(&_cursors[i]);
@@ -199,6 +262,38 @@ namespace graphics
 
     void TextEditorWindow::removeChar()
     {
+        for(unsigned int i = 0; i < _selections.size(); ++i)
+        {
+            Selection &sel = _selections[i];
+            int lastX = 0, lastY = 0;
+
+            for(int y = _lines.size() - 1; y >= 0; --y)
+            {
+                for(int x = _lines[y]->size() - 1; x >= 0; --x)
+                {
+                    if(inSelection(x, y, sel))
+                    {
+                        _lines[y]->erase(_lines[y]->begin() + x);
+                        std::cout << _lines[y]->size() << " at line " << y + 1;
+                        if(_lines[y]->size() <= 0)
+                        {
+                            _lines.erase(_lines.begin() + y);
+                        } else std::cout << std::endl;
+
+                        lastX = x - 1; lastY = y;
+                    }
+                }
+
+                if(_lines[y]->size() <= 0)
+                    _lines.erase(_lines.begin() + y);
+            }
+
+            _cursors[i].x = lastX;
+            _cursors[i].y = lastY;
+        }
+
+        _selections.clear();
+
         for(unsigned int i = 0; i < _cursors.size(); ++i)
         {
             int &_cursorX = _cursors[i].x, &_cursorY = _cursors[i].y;
@@ -233,6 +328,11 @@ namespace graphics
 
     void TextEditorWindow::insertText(std::string s)
     {
+        this->addChar('a');
+        this->removeChar();
+
+        _selections.clear();
+
         for(unsigned int i = 0; i < _cursors.size(); ++i)
         {
             int &_cursorX = _cursors[i].x, &_cursorY = _cursors[i].y;
@@ -275,6 +375,8 @@ namespace graphics
 
             _cursorX = 0;
         }
+
+        _scrollX = 0;
     }
 
     void TextEditorWindow::scroll(bool dir)
@@ -298,11 +400,20 @@ namespace graphics
         if(cY >= _lines.size())
             cY = _lines.size() - 1;
 
+        int scrollW, __y;
+        char line[_scrollX + 1];
+        for(unsigned int i = 0; i < _scrollX; ++i)
+        {
+            line[i] = (*(_lines[cY]))[i];
+        }
+        line[_scrollX] = '\0';
+        TTF_SizeText(_font, line, &scrollW, &__y);
+
         int last = 0;
         bool found = false;
         for(unsigned int i = 0; i < _lines[cY]->size(); ++i)
         {
-            int xcpy = x;
+            int xcpy = x + scrollW + (_scrollX) * _spacing;
             std::string str;
             for(unsigned int i2 = 0; i2 < i; ++i2)
             {
@@ -353,17 +464,83 @@ namespace graphics
 
                 break;
             case SDL_BUTTON_LEFT:
-                if(!ctrlDown)
+                if(dir)
                 {
-                    _cursors.clear();
-                    _cursors.push_back(Cursor(0, 0));
-                    this->attemptMoveCursor(&(_cursors[0]), ev.x - _posX, ev.y - _posY);
+                    if(!ctrlDown && !shiftDown)
+                    {
+                        _selections.clear();
+
+                        Cursor c;
+                        this->attemptMoveCursor(&c, ev.x - _posX, ev.y - _posY);
+                        Selection sel;
+                        sel.start = c;
+                        _selections.push_back(sel);
+                        _cursors.clear();
+                        _cursors.push_back(c);
+                        this->attemptMoveCursor(&(_cursors[0]), ev.x - _posX, ev.y - _posY);
+
+                        if(_cursors[0].x - _scrollX < 6)
+                            _scrollX -= 6;
+
+                        if(_scrollX < 0)
+                            _scrollX = 0;
+
+                        if((_cursors[0].x - _scrollX) >= _target->w / _fontWidth - 12 && _scrollX < _lines[_cursors[0].y]->size())
+                            ++_scrollX;
+
+                        if(_scrollX > _lines[_cursors[0].y]->size() - 15)
+                            _scrollX = _lines[_cursors[0].y]->size() - 15;
+                    }
+                    else if(shiftDown)
+                    {
+                        //*
+                        _selections.clear();
+
+                        Cursor c;
+                        this->attemptMoveCursor(&c, ev.x - _posX, ev.y - _posY);
+                        Selection sel;
+                        _selections.push_back(sel);
+                        _selections[0].start = _cursors[_cursors.size() - 1];
+                        _selections[0].end = c;
+
+                        // Swap them if start is greater than end
+                        if((_selections[0].start.y > _selections[0].end.y) || (_selections[0].start.y == _selections[0].end.y && _selections[0].start.x > _selections[0].end.x))
+                        {
+                            Cursor _s = _selections[0].start;
+                            _selections[0].start = _selections[0].end;
+                            _selections[0].end = _s;
+                        }
+
+                        std::cout << "Selection from (" << _selections[0].start.x << ", " << _selections[0].start.y << ") to (" << _selections[0].end.x << ", " << _selections[0].end.y << ")" << std::endl;
+                        //*/
+                    }
+                    else
+                    {
+                        _selections.clear();
+
+                        Cursor c;
+                        this->attemptMoveCursor(&c, ev.x - _posX, ev.y - _posY);
+                        Selection sel;
+                        sel.start = c;
+                        _selections.push_back(sel);
+                        this->attemptMoveCursor(&(_cursors[_cursors.size() - 1]), ev.x - _posX, ev.y - _posY);
+                    }
                 }
                 else
                 {
-                    _cursors.push_back(Cursor(0, 0));
-                    this->attemptMoveCursor(&(_cursors[_cursors.size() - 1]), ev.x - _posX, ev.y - _posY);
+                    if(!shiftDown && !ctrlDown)
+                    {
+                        _cursors.clear();
+                        Cursor c;
+                        this->attemptMoveCursor(&c, ev.x - _posX, ev.y - _posY);
+
+                        if(_selections[_selections.size() - 1].start.x != c.x || _selections[_selections.size() - 1].start.y != c.y)
+                            _selections[_selections.size() - 1].end = c;
+
+                        _cursors.push_back(c);
+                    }
                 }
+
                 break;
             default:
                 break;
@@ -398,6 +575,8 @@ namespace graphics
         {
             if(key.keysym.sym == SDLK_DOWN)
             {
+                _selections.clear();
+
                 int cX = _cursors[_cursors.size() - 1].x, cY = _cursors[_cursors.size() - 1].y;
                 _cursors.clear();
                 _cursors.push_back(Cursor(cX, cY));
@@ -405,6 +584,8 @@ namespace graphics
             }
             else if(key.keysym.sym == SDLK_LEFT)
             {
+                _selections.clear();
+
                 int cX = _cursors[_cursors.size() - 1].x, cY = _cursors[_cursors.size() - 1].y;
                 _cursors.clear();
                 _cursors.push_back(Cursor(cX, cY));
@@ -412,6 +593,8 @@ namespace graphics
             }
             else if(key.keysym.sym == SDLK_RIGHT)
             {
+                _selections.clear();
+
                 int cX = _cursors[_cursors.size() - 1].x, cY = _cursors[_cursors.size() - 1].y;
                 _cursors.clear();
                 _cursors.push_back(Cursor(cX, cY));
@@ -419,6 +602,8 @@ namespace graphics
             }
             else if(key.keysym.sym == SDLK_UP)
             {
+                _selections.clear();
+
                 int cX = _cursors[_cursors.size() - 1].x, cY = _cursors[_cursors.size() - 1].y;
                 _cursors.clear();
                 _cursors.push_back(Cursor(cX, cY));
@@ -453,7 +638,15 @@ namespace graphics
             {
                 _debug = !_debug;
             }
-            else if(key.keysym.sym == SDLK_LSHIFT || key.keysym.sym == SDLK_RSHIFT || key.keysym.sym == SDLK_RALT || key.keysym.sym == SDLK_LALT || key.keysym.sym == SDLK_CAPSLOCK) {}
+            else if(key.keysym.sym == SDLK_LSHIFT || key.keysym.sym == SDLK_RSHIFT)
+            {
+                shiftDown = true;
+            }
+            else if(key.keysym.sym == SDLK_RALT || key.keysym.sym == SDLK_LALT)
+            {
+                altDown = true;
+            }
+            else if(key.keysym.sym == SDLK_CAPSLOCK) {}
             else
             {
                 // Get the unicode char
@@ -476,6 +669,14 @@ namespace graphics
             if(key.keysym.sym == SDLK_LCTRL || key.keysym.sym == SDLK_RCTRL)
             {
                 ctrlDown = false;
+            }
+            else if(key.keysym.sym == SDLK_LSHIFT || key.keysym.sym == SDLK_RSHIFT)
+            {
+                shiftDown = false;
+            }
+            else if(key.keysym.sym == SDLK_LALT || key.keysym.sym == SDLK_RALT)
+            {
+                altDown = false;
             }
         }
     }
@@ -557,21 +758,20 @@ namespace graphics
         for(unsigned int y = 0; y < lines.size(); ++y)
         {
             std::vector<text::EditorChar> curLine = getEditorCharVector(lines[y], _lang.colorScheme);
-            for(unsigned int x = 0; x < curLine.size(); ++x)
+            for(unsigned int x = _scrollX; x < curLine.size(); ++x)
             {
                 int lX, lY;
 
-                char line[x + 1];
+                char line[x - _scrollX + 1];
                 for(unsigned int i = 0; i < x; ++i)
                 {
-                    line[i] = (*(_lines[y]))[i];
+                    line[i] = (*(_lines[y]))[i + _scrollX];
                 }
-                line[x] = '\0';
-
+                line[x - _scrollX] = '\0';
                 TTF_SizeText(_font, line, &lX, &lY);
                 // std::cout << lY << std::endl;
 
-                if(x == 0)
+                if(x == _scrollX)
                 {
                     char *l = itoa(y + 1, 10);
 
@@ -582,12 +782,22 @@ namespace graphics
                         graphics::FontRenderer::setFont(_lineNumFont);
                         int w, __h;
                         TTF_SizeText(_lineNumFont, std::string(lineNumString).substr(0, i).c_str(), &w, &__h);
-                        graphics::FontRenderer::renderLetter(l[i], w + 2, (y - _scrollY) * (lY - 2), c, bgC);
+                        graphics::FontRenderer::renderLetter(l[i], w + 2, (y - _scrollY) * (lY - 1), c, bgC);
                         graphics::FontRenderer::setFont(_font);
                     }
                 }
+                bool inSel;
+                for(unsigned int i = 0; i < _selections.size(); ++i)
+                {
+                    inSel = inSelection(x, y, _selections[i]);
 
-                graphics::FontRenderer::renderLetter(curLine[x].content, lX + x * _spacing + 2 + lnRectDst.w, (y - _scrollY) * (lY - 2), curLine[x].fgColor, curLine[x].bgColor);
+                    if(inSel)   break;
+                }
+
+                Color selBg(_lang.colorScheme.defaultBG.r + 20, _lang.colorScheme.defaultBG.g + 20, _lang.colorScheme.defaultBG.b + 20, 255);
+
+                // std::cout << (int) (lX + x * _spacing + 2 + lnRectDst.w) << " vs. " << (int) (lX + x * _spacing + 2 + lnRectDst.w - scrollW) << std::endl;
+                graphics::FontRenderer::renderLetter(curLine[x].content, (int) (lX + (x - _scrollX) * _spacing + 2 + lnRectDst.w), (int) ((y - _scrollY) * (lY - 1)), curLine[x].fgColor, (inSel ? selBg : curLine[x].bgColor), _spacing);
             }
         }
 
@@ -600,12 +810,16 @@ namespace graphics
 
                 int lX, lY;
 
-                char line[_cursorX + 1];
+                char line[_cursorX - _scrollX + 1];
                 for(unsigned int i = 0; i < _cursorX; ++i)
                 {
-                    line[i] = (*(_lines[_cursorY]))[i];
+                    if(i + _scrollX >= _lines[_cursorY]->size())
+                        break;
+
+                    std::cout << "Reading char at (" << i + _scrollX << ", " << _cursorY << ")" << std::endl;
+                    line[i] = (*(_lines[_cursorY]))[i + _scrollX];
                 }
-                line[_cursorX] = '\0';
+                line[_cursorX - _scrollX] = '\0';
 
                 TTF_SizeText(_font, line, &lX, &lY);
 
@@ -613,19 +827,19 @@ namespace graphics
                 {
                     // Draw some reference lines
                     graphics::Color col(255, 0, 0, 255);
-                    graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2), col);
+                    graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 1), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 1), col);
 
                     col.r = 0;
                     col.b = 255;
-                    graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), col);
+                    graphics::line(_target, 0, (_cursorY - _scrollY) * (_fontHeight - 1) + (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 1) + (_fontHeight - 1), col);
 
                     col.b = 0;
                     col.g = 255;
-                    graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, 0, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, _target->h, col);
+                    graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, 0, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 1), col);
                 }
 
                  // std::cout << "Drawing caret at y " << (_cursorY - _scrollY) * (_fontHeight - 2) << " vs " << (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2) << std::endl;
-                graphics::line(_target, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 2) + (_fontHeight - 2), _lang.colorScheme.caretFG);
+                graphics::line(_target, lX + (_cursorX - _scrollX) * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 1), lX + (_cursorX - _scrollX) * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * (_fontHeight - 1) + (_fontHeight - 2), _lang.colorScheme.caretFG);
             }
         }
 

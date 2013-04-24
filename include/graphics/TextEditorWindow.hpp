@@ -18,7 +18,13 @@ struct Cursor
 {
     int x, y;
 
+    Cursor() : x(0), y(0) {}
     Cursor(int _x, int _y) : x(_x), y(_y) {}
+};
+
+struct Selection
+{
+    Cursor start, end;
 };
 
 namespace graphics
@@ -39,11 +45,12 @@ namespace graphics
             text::SyntaxLanguage _lang;
             TTF_Font *_font, *_lineNumFont;
             bool _caretVisible;
-            int _caretWait, _fontSize, _spacing, _scrollY, _fontHeight;
+            int _caretWait, _fontSize, _spacing, _scrollY, _scrollX, _fontHeight, _fontWidth;
             std::string _saveFile;
             std::vector<std::string> _hlLines;
 
             std::vector<Cursor> _cursors;
+            std::vector<Selection> _selections;
 
             bool _debug; // Debug printings are enabled if true
 
@@ -180,6 +187,18 @@ namespace graphics
               * @param size The new fontsize
               */
              void resizeFont(int size);
+
+             /**
+              * Sets the position
+              *
+              * @param x The new x coordinate
+              * @param y The new y coordinate
+              */
+            void setPosition(unsigned int x, unsigned int y)
+            {
+                _posX = x;
+                _posY = y;
+            }
     };
 }
 
