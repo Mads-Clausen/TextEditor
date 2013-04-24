@@ -46,7 +46,7 @@ namespace graphics
             TTF_Font *_font, *_lineNumFont;
             bool _caretVisible;
             int _caretWait, _fontSize, _spacing, _scrollY, _scrollX, _fontHeight, _fontWidth;
-            std::string _saveFile;
+            std::string _curFile;
             std::vector<std::string> _hlLines;
 
             std::vector<Cursor> _cursors;
@@ -78,14 +78,14 @@ namespace graphics
              * @param ev The event.
              * @param dir Up or down?
              */
-             void onMouseEvent(SDL_MouseButtonEvent &ev, bool dir);
+            void onMouseEvent(SDL_MouseButtonEvent &ev, bool dir);
 
              /**
               * Scroll up/down.
               *
               * @param dir Up or down?
               */
-              void scroll(bool dir);
+            void scroll(bool dir);
 
             /**
              * Initialises the "window".
@@ -170,6 +170,13 @@ namespace graphics
              * Saves text to file.
              */
             void save();
+
+            /**
+             * Loads a text file.
+             *
+             * @param path The path of the file.
+             */
+            void load(char *path);
 
             /**
              * Sets the activity of the editorwindow.

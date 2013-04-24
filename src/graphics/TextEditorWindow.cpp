@@ -80,7 +80,7 @@ namespace graphics
         _lang.load();
         _lang.loadColors("colorschemes/default.csch");
 
-        _saveFile = "save.txt";
+        _curFile = "save.txt";
 
         // Init the default font
         _fontSize = 14;
@@ -252,8 +252,6 @@ namespace graphics
         {
             int &_cursorX = _cursors[i].x, &_cursorY = _cursors[i].y;
 
-            // std::cout << "Adding char '" << c << "' at (" << _cursorX << ", " << _cursorY << ")" << std::endl;
-            std::cout << "Adding char at (" << _cursorX << ", " << _cursorY << ")" << std::endl;
             _lines[_cursorY]->insert(_lines[_cursorY]->begin() + _cursorX, c); // Insert the char
 
             this->moveCursorRight(&_cursors[i]);
@@ -274,7 +272,6 @@ namespace graphics
                     if(inSelection(x, y, sel))
                     {
                         _lines[y]->erase(_lines[y]->begin() + x);
-                        std::cout << _lines[y]->size() << " at line " << y + 1;
                         if(_lines[y]->size() <= 0)
                         {
                             _lines.erase(_lines.begin() + y);
@@ -386,7 +383,7 @@ namespace graphics
             _scrollY -= 3;
         else if(dir && _scrollY < 3)
             _scrollY = 0;
-        else if(!dir && _scrollY < _lines.size() - (_target->h / _fontHeight + 3) && _lines.size() >= _target->h / _fontHeight + 3)
+        else if(!dir && _scrollY < _lines.size() - (_target->h / _fontHeight) && _lines.size() >= _target->h / _fontHeight + 3)
         {
             _scrollY += 3;
         }
@@ -395,7 +392,7 @@ namespace graphics
 
     void TextEditorWindow::attemptMoveCursor(Cursor *c, int x, int y)
     {
-        int cY = y / (_fontHeight - 2) + _scrollY, cX = 0;
+        int cY = y / (_fontHeight - 1) + _scrollY, cX = 0;
 
         if(cY >= _lines.size())
             cY = _lines.size() - 1;
@@ -442,6 +439,7 @@ namespace graphics
         // std::cout << "Moved cursor to (" << _cursorX << ", " << _cursorY << ")" << std::endl;
     }
 
+    int lastX, lastY;
     void TextEditorWindow::onMouseEvent(SDL_MouseButtonEvent &ev, bool dir)
     {
         if(!_active)
@@ -472,9 +470,7 @@ namespace graphics
 
                         Cursor c;
                         this->attemptMoveCursor(&c, ev.x - _posX, ev.y - _posY);
-                        Selection sel;
-                        sel.start = c;
-                        _selections.push_back(sel);
+                        lastX = c.x; lastY = c.y;
                         _cursors.clear();
                         _cursors.push_back(c);
                         this->attemptMoveCursor(&(_cursors[0]), ev.x - _posX, ev.y - _posY);
@@ -534,8 +530,16 @@ namespace graphics
                         Cursor c;
                         this->attemptMoveCursor(&c, ev.x - _posX, ev.y - _posY);
 
-                        if(_selections[_selections.size() - 1].start.x != c.x || _selections[_selections.size() - 1].start.y != c.y)
-                            _selections[_selections.size() - 1].end = c;
+                        if(lastX != c.x || lastY != c.y)
+                        {
+                            Selection sel;
+                            sel.start.x = lastX - 1;
+                            sel.start.y = lastY;
+                            sel.end = c;
+                            _selections.push_back(sel);
+                        }
+                        else
+                            _selections.clear();
 
                         _cursors.push_back(c);
                     }
@@ -684,7 +688,7 @@ namespace graphics
     void TextEditorWindow::save()
     {
         std::cout << "Saving" << std::endl;
-        std::ofstream file(_saveFile.c_str());
+        std::ofstream file(_curFile.c_str());
 
         for(unsigned int y = 0; y < _lines.size(); ++y)
         {
@@ -694,6 +698,37 @@ namespace graphics
             }
 
             file << std::endl;
+        }
+
+        file.close();
+    }
+
+    void TextEditorWindow::load(char *path)
+    {
+        _lines.clear();
+        _cursors.clear();
+        _selections.clear();
+        _cursors.push_back(Cursor(0, 0));
+
+        std::cout << "Loading file '" << path << "'" << std::endl;
+        _curFile = std::string(path);
+
+        std::ifstream file(_curFile.c_str());
+
+        if(!file.is_open())
+        {
+            std::cout << "Unable to load file '" << _curFile.c_str() << "'";
+            _lines.push_back(new CharList);
+            return;
+        }
+
+        int y = 0;
+        for(std::string line; getline(file, line);)
+        {
+            _lines.push_back(new CharList);
+
+            for(unsigned int i = 0; i < line.length(); ++i)
+                _lines[_lines.size() - 1]->push_back(line[i]);
         }
 
         file.close();
@@ -722,6 +757,12 @@ namespace graphics
     {
         if(!_active)
             return;
+
+        for(unsigned int i = 0; i < _cursors.size(); ++i)
+        {
+            if(_cursors[i].y >= _lines.size())
+                _cursors[i].y = _lines.size() - 1;
+        }
 
         ++_caretWait;
         if(_caretWait > 80)
@@ -757,11 +798,28 @@ namespace graphics
 
         for(unsigned int y = 0; y < lines.size(); ++y)
         {
+            int lX, lY;
+            char line[2];
+            line[0] = '1';
+            line[1] = '\0';
+            TTF_SizeText(_font, line, &lX, &lY);
+
+            char *l = itoa(y + 1, 10);
+
+            graphics::Color c(_lang.colorScheme.defaultFG.r + 40, _lang.colorScheme.defaultFG.g + 40, _lang.colorScheme.defaultFG.b + 40, 255);
+            graphics::Color bgC(_lang.colorScheme.defaultBG.r - 20, _lang.colorScheme.defaultBG.g - 20, _lang.colorScheme.defaultBG.b - 20, 255);
+            for(unsigned int i = 0; i < lnDigits; ++i)
+            {
+                graphics::FontRenderer::setFont(_lineNumFont);
+                int w, __h;
+                TTF_SizeText(_lineNumFont, std::string(lineNumString).substr(0, i).c_str(), &w, &__h);
+                graphics::FontRenderer::renderLetter(l[i], w + 2, (y - _scrollY) * (lY - 1), c, bgC);
+            }
+
+
             std::vector<text::EditorChar> curLine = getEditorCharVector(lines[y], _lang.colorScheme);
             for(unsigned int x = _scrollX; x < curLine.size(); ++x)
             {
-                int lX, lY;
-
                 char line[x - _scrollX + 1];
                 for(unsigned int i = 0; i < x; ++i)
                 {
@@ -771,6 +829,7 @@ namespace graphics
                 TTF_SizeText(_font, line, &lX, &lY);
                 // std::cout << lY << std::endl;
 
+                /*
                 if(x == _scrollX)
                 {
                     char *l = itoa(y + 1, 10);
@@ -786,6 +845,8 @@ namespace graphics
                         graphics::FontRenderer::setFont(_font);
                     }
                 }
+                //*/
+
                 bool inSel;
                 for(unsigned int i = 0; i < _selections.size(); ++i)
                 {
@@ -816,7 +877,6 @@ namespace graphics
                     if(i + _scrollX >= _lines[_cursorY]->size())
                         break;
 
-                    std::cout << "Reading char at (" << i + _scrollX << ", " << _cursorY << ")" << std::endl;
                     line[i] = (*(_lines[_cursorY]))[i + _scrollX];
                 }
                 line[_cursorX - _scrollX] = '\0';
