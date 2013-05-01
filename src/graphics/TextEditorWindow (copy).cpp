@@ -35,9 +35,9 @@ bool inSelection(int x, int y, Selection &sel)
     if(y > sel.start.y && y < sel.end.y)
         return true;
 
-    if(y == sel.start.y && x > sel.start.x)
+    if(y == sel.start.y && x >= sel.start.x)
     {
-        if(y == sel.end.y && x >= sel.end.x)
+        if(y == sel.end.y && x > sel.end.x)
             return false;
 
         return true;
@@ -45,7 +45,7 @@ bool inSelection(int x, int y, Selection &sel)
 
     if(y == sel.end.y && x <= sel.end.x)
     {
-        if(y == sel.start.y && x <= sel.start.x)
+        if(y == sel.start.y && x < sel.start.x)
             return false;
 
         return true;
@@ -260,8 +260,6 @@ namespace graphics
 
     void TextEditorWindow::removeChar()
     {
-        std::vector<int> skips;
-
         for(unsigned int i = 0; i < _selections.size(); ++i)
         {
             Selection &sel = _selections[i];
@@ -273,36 +271,41 @@ namespace graphics
                     if(inSelection(x, y, sel))
                     {
                         _lines[y]->erase(_lines[y]->begin() + x);
-
-
                         if(_lines[y]->size() <= 0)
+                        {
                             _lines.erase(_lines.begin() + y);
+                        }
                     }
                 }
+
+                if(_lines[y]->size() <= 0)
+                    _lines.erase(_lines.begin() + y);
+            }
+
+            std::cout << sel.end.y - sel.start.y << std::endl;
+
+            if(sel.end.y - sel.start.y > 0 && sel.start.y + 1 < _lines.size())
+            {
+                std::cout << "Deleting shit" << std::endl;
+                unsigned int oldSize = _lines[sel.start.y + 1]->size();
+
+                // Move current line above
+                for(unsigned int x = 0; x < _lines[sel.start.y + 1]->size(); ++x)
+                    // We can push since we're appending to the end of the line
+                    _lines[sel.start.y - 1]->push_back((*(_lines[sel.start.y]))[x]);
+
+                // Remove old line
+                _lines.erase(_lines.begin() + sel.start.y);
             }
 
             _cursors[i].x = sel.start.x;
             _cursors[i].y = sel.start.y;
-            skips.push_back(i);
         }
 
         _selections.clear();
 
         for(unsigned int i = 0; i < _cursors.size(); ++i)
         {
-            bool skip = false;
-            for(unsigned int x = 0; x < skips.size(); ++x)
-            {
-                if(i == skips[x])
-                {
-                    skip = true;
-                    break;
-                }
-
-            }
-
-            if(skip) continue;
-
             int &_cursorX = _cursors[i].x, &_cursorY = _cursors[i].y;
 
             if(_cursorX > 0)

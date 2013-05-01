@@ -1,0 +1,934 @@
+return {""graphics/TextEditorWindow.hpp"";"shiftDown;";"numDigits(T";""0123456789abcdef"[val";"inSelection(int";"sel.start.y";"sel.end.y)";"sel.start.x)";"sel.end.x)";"TextEditorWindow::~TextEditorWindow()";"TextEditorWindow"";"SDL_FreeSurface(_target);";"for(unsigned";"_lines.size();";"TextEditorWindow::init(int";"this->resize(w,";"_lines.push_back(new";"_lines[0]->push_back('";""languages/c++";";"_lang.load();";"_lang.loadColors("colorschemes/default.csch");";""save.txt";";"TTF_OpenFont("fonts/default.ttf",";"_fontSize);";"_lineNumFont";"TTF_OpenFont("fonts/__line_nums.ttf",";"graphics::FontRenderer::setFont(_font);";"TTF_SizeText(_font,";"&_fontWidth,";"&_fontHeight);";"this->getLines();";"highlightLines(_hlLines,";"_lang.keywords);";"_cursors.push_back(Cursor(0,";"this->setActive(true);";"this->render();";"this->setActive(false);";"TextEditorWindow::resizeFont(int";"TTF_CloseFont(_font);";"TextEditorWindow::resize(int";"architecture";"SDL_BYTEORDER";"SDL_BIG_ENDIAN";"SDL_CreateRGBSurface(SDL_SWSURFACE,";"0xff000000,";"0x00ff0000,";"0x0000ff00,";"0x000000ff);";"0x000000ff,";"0xff000000);";""CreateRGBSurface";"SDL_GetError()";""Initialised";"TextEditorWindow";"TextEditorWindow::moveCursorDown(Cursor";"if(_cursorY";"_lines.size()";"++_cursorY;";"if((_cursorY";"_fontHeight";"_lines.size())";""Scrolling.";"++_scrollY;";"non-existing";"if(_cursorX";"_lines[_cursorY]->size())";"_lines[_cursorY]->size();";"if((_cursorX";"TextEditorWindow::moveCursorUp(Cursor";"--_cursorY;";"if(_scrollY";"--_scrollY;";"TextEditorWindow::moveCursorRight(Cursor";"++_cursorX;";"++_scrollX;";"this->moveCursorDown(cur);";"TextEditorWindow::moveCursorLeft(Cursor";"--_cursorX;";"--_scrollX;";"this->moveCursorUp(cur);";"TextEditorWindow::addChar(char";"_selections.size();";"_selections[i];";"_lines[y]->size()";"if(inSelection(x,";"_lines[y]->erase(_lines[y]->begin()";"if(_lines[y]->size()";"_lines.erase(_lines.begin()";"_selections.clear();";"_cursors.size();";"_cursors[i].x,";"_cursors[i].y;";"_lines[_cursorY]->insert(_lines[_cursorY]->begin()";"this->moveCursorRight(&_cursors[i]);";"TextEditorWindow::removeChar()";"if(sel.end.y";"_lines[sel.start.y";"1]->size();";"1]->push_back((*(_lines[sel.start.y]))[x]);";"sel.start.y);";"_cursors[i].x";"sel.start.x;";"_cursors[i].y";"sel.start.y;";"_lines[_cursorY]->erase(_lines[_cursorY]->begin()";"this->moveCursorLeft(&_cursors[i]);";"_lines[_cursorY";"1]->push_back((*(_lines[_cursorY]))[x]);";"this->moveCursorUp(&_cursors[i]);";"TextEditorWindow::insertText(std::string";"this->addChar('a');";"this->removeChar();";"std::stringstream";"replace_str(s,";"this->addLine();";"this->addChar(s[i]);";"TextEditorWindow::addLine()";"_lines.insert(_lines.begin()";"CharList());";"_lines[_cursorY]->size();)";"this->moveCursorDown(&_cursors[i]);";"TextEditorWindow::scroll(bool";"_fontHeight)";"TextEditorWindow::attemptMoveCursor(Cursor";"(_fontHeight";"line[_scrollX";"(*(_lines[cY]))[i];";"line[_scrollX]";"_lines[cY]->size();";"(*(_lines[cY]))[i2];";"str.append(ss.str());";"str.c_str(),";"(numDigits(_lines.size()";"_lines[cY]->size()));";"TextEditorWindow::onMouseEvent(SDL_MouseButtonEvent";"if(!_active)";"switch(ev.button)";"SDL_BUTTON_WHEELDOWN:";"if(ctrlDown)";"this->resizeFont(_fontSize";"this->scroll(false);";"SDL_BUTTON_WHEELUP:";"this->scroll(true);";"SDL_BUTTON_LEFT:";"if(!ctrlDown";"this->attemptMoveCursor(&c,";"_cursors.clear();";"_cursors.push_back(c);";"this->attemptMoveCursor(&(_cursors[0]),";"if(_cursors[0].x";"if((_cursors[0].x";"_lines[_cursors[0].y]->size())";"_lines[_cursors[0].y]->size()";"if(shiftDown)";"_selections.push_back(sel);";"_selections[0].start";"_cursors[_cursors.size()";"_selections[0].end";"if((_selections[0].start.y";"_selections[0].end.y)";"(_selections[0].start.y";"_selections[0].end.y";"_selections[0].start.x";"_selections[0].end.x))";"_selections[0].start;";"_selections[0].end;";"_selections[0].start.y";"_selections[0].end.x";"this->attemptMoveCursor(&(_cursors[_cursors.size()";"if(!shiftDown";"_lang.keywords,";"TextEditorWindow::onKeyEvent(SDL_KeyboardEvent";"if(key.keysym.sym";"SDLK_CAPSLOCK)";"key.keysym.unicode;";"if(_capslock)";"text::TextUtils::toUppercase(kName);";"_cursors.push_back(Cursor(cX,";"this->moveCursorDown(&_cursors[0]);";"this->moveCursorLeft(&_cursors[0]);";"this->moveCursorRight(&_cursors[0]);";"this->moveCursorUp(&_cursors[0]);";"SDLK_BACKSPACE)";"SDLK_RETURN)";"key.keysym.sym";"this->save();";"this->insertText(text::TextUtils::getClipboardData());";"SDLK_RSHIFT)";"this->addChar(kName);";"kName.c_str()";"TextEditorWindow::save()";"std::ofstream";"file(_curFile.c_str());";"_lines[y]->size();";"(*(_lines[y]))[x];";"file.close();";"TextEditorWindow::load(char";"_lines.clear();";"std::string(path);";"std::ifstream";"if(!file.is_open())";"_curFile.c_str()";"for(std::string";"getline(file,";"line.length();";"_lines[_lines.size()";"1]->push_back(line[i]);";"std::vector<std::string>";"TextEditorWindow::getLines()";"line[_lines[y]->size()";"line[_lines[y]->size()]";"l.push_back(line);";"TextEditorWindow::update()";"if(_cursors[i].y";"++_caretWait;";"if(_caretWait";"_caretVisible";"!_caretVisible;";"TextEditorWindow::render()";"SDL_FillRect(_target,";"SDL_MapRGB(_target->format,";"_lang.colorScheme.defaultBG.r,";"_lang.colorScheme.defaultBG.g,";"_lang.colorScheme.defaultBG.b));";"graphics::FontRenderer::setTarget(_target);";"numDigits(_lines.size()";"*lineNumString";"itoa(_lines.size(),";"TTF_SizeText(_lineNumFont,";"lineNumString,";"(_lines.size()";"_lang.colorScheme.defaultBG.r";"_lang.colorScheme.defaultBG.g";"_lang.colorScheme.defaultBG.b";"lines.size();";"graphics::Color";"c(_lang.colorScheme.defaultFG.r";"_lang.colorScheme.defaultFG.g";"_lang.colorScheme.defaultFG.b";"bgC(_lang.colorScheme.defaultBG.r";"graphics::FontRenderer::setFont(_lineNumFont);";"std::string(lineNumString).substr(0,";"graphics::FontRenderer::renderLetter(l[i],";"std::vector<text::EditorChar>";"getEditorCharVector(lines[y],";"_lang.colorScheme);";"curLine.size();";"(*(_lines[y]))[i";"inSelection(x,";"_selections[i]);";"selBg(_lang.colorScheme.defaultBG.r";"lnRectDst.w)";"graphics::FontRenderer::renderLetter(curLine[x].content,";"lnRectDst.w),";"curLine[x].fgColor,";"curLine[x].bgColor),";"if(_caretVisible)";"line[_cursorX";"(*(_lines[_cursorY]))[i";"graphics::line(_target,";"_lang.colorScheme.caretFG);";"SDL_BlitSurface(_target,";"GraphicsManager::flip();";}
+#include `[1]
+
+#include <iomanip>
+#include <fstream>
+#include <sstream>
+
+bool ctrlDown, altDown, `[2]
+
+template <class T>
+int `[3] number)
+{
+int digits = 0;
+if (number < 0) digits = 1; // remove this line if '-' counts as a digit
+while (number) {
+number /= 10;
+digits++;
+}
+return digits;
+}
+
+char* itoa(int val, int base)
+{
+	static char buf[32] = {0};
+
+	int i = 30;
+
+	for(; val && i ; --i, val /= base)
+		buf[i] = `[4] % base];
+
+	return &buf[i + 1];
+}
+
+bool `[5] x, int y, Selection &sel)
+{
+if(y > `[6] && y < `[7]
+return true;
+
+if(y == `[6] && x >= `[8]
+{
+if(y == sel.end.y && x > `[9]
+return false;
+
+return true;
+}
+
+if(y == sel.end.y && x <= `[9]
+{
+if(y == `[6] && x < `[8]
+return false;
+
+return true;
+}
+
+return false;
+}
+
+namespace graphics
+{
+`[10]
+{
+std::cout << "Shutting down `[11] << std::endl;
+
+// Free the target
+if(_target != 0) `[12]
+
+// Delete all EditorChar pointers
+`[13] int y = 0; y < `[14] ++y)
+delete _lines[y];
+}
+
+bool `[15] w, int h)
+{
+bool r = `[16] h);
+`[17] CharList); // Make sure we have one line to start with
+`[18] ');
+_tabLen = 4;
+
+_lang.path = `[19]
+_lang.name = "C++";
+`[20]
+`[21]
+
+_curFile = `[22]
+
+// Init the default font
+_fontSize = 14;
+_font = `[23] `[24]
+`[25] = `[26] `[24]
+_spacing = 1;
+`[27]
+
+`[28] "1", `[29] `[30]
+
+_hlLines = `[31]
+`[32] `[33]
+
+`[34] 0));
+
+`[35]
+`[36]
+`[37]
+
+return r;
+}
+
+void `[38] size)
+{
+`[39]
+_fontSize = size;
+_font = `[23] `[24]
+`[25] = `[26] `[24]
+
+`[27]
+
+`[28] "1", `[29] `[30]
+}
+
+bool `[40] w, int h)
+{
+// Free the target to avoid memory leaks
+if(_target != 0) `[12]
+
+// Create new target, making sure to use the right `[41]
+#if `[42] == `[43]
+_target = `[44] w, h, 32, `[45] `[46] `[47] `[48]
+#else
+_target = `[44] w, h, 32, `[49] `[47] `[46] `[50]
+#endif
+
+// Something went wrong
+if(_target == 0)
+{
+std::cerr << `[51] failed: " << `[52] << std::endl;
+return false;
+}
+
+
+// std::cout << `[53] `[54] with size " << w << "*" << h << std::endl;
+
+return true;
+}
+
+void `[55] *cur)
+{
+int &_cursorX = cur->x, &_cursorY = cur->y;
+
+// We can't really move down if we're at the bottom, eh?
+`[56] < `[57] - 1)
+{
+`[58] // Move down
+
+`[59] - _scrollY) >= (int) _target->h / `[60] && _scrollY < (int) `[61]
+{
+// std::cout << `[62] " << (int) _target->h / `[60] << std::endl;
+`[63]
+}
+
+// Make sure that we're not trying to access `[64] chars
+`[65] >= `[66]
+_cursorX = `[67]
+
+`[68] - _scrollX) < 18)
+_scrollX = 0;
+}
+}
+
+void `[69] *cur)
+{
+int &_cursorX = cur->x, &_cursorY = cur->y;
+
+`[56] > 0)
+{
+`[70]
+
+`[71] > 0)
+`[72]
+
+// Make sure that we're not trying to access `[64] chars
+`[65] >= `[66]
+_cursorX = `[67]
+
+`[68] - _scrollX) < 18)
+_scrollX = 0;
+}
+}
+
+void `[73] *cur)
+{
+int &_cursorX = cur->x, &_cursorY = cur->y;
+
+// Check that we're not moving further than the line is long... what?
+`[65] < `[66]
+{
+`[74]
+
+`[68] - _scrollX) >= _target->w / _fontWidth - 12 && _scrollX < `[66]
+`[75]
+}
+else
+// Attempt to move down if the end of the line is reached
+`[76]
+}
+
+void `[77] *cur)
+{
+int &_cursorX = cur->x, &_cursorY = cur->y;
+
+// Check if we're trying to move into a wall
+`[65] > 0)
+{
+`[78]
+
+`[68] - _scrollX) < 6 && _scrollX > 0)
+`[79]
+}
+else
+{ // If we are, attempt to move up
+unsigned int oldCY = _cursorY;
+`[80]
+
+// Move to the end of the line if the up-move was successful
+`[56] != oldCY)
+_cursorX = `[67]
+}
+}
+
+void `[81] c)
+{
+`[13] int i = 0; i < `[82] ++i)
+{
+Selection &sel = `[83]
+
+for(int y = `[57] - 1; y >= 0; --y)
+{
+for(int x = `[84] - 1; x >= 0; --x)
+{
+`[85] y, sel))
+{
+`[86] + x);
+`[87] <= 0)
+{
+`[88] + y);
+}
+}
+}
+}
+}
+
+`[89]
+
+`[13] int i = 0; i < `[90] ++i)
+{
+int &_cursorX = `[91] &_cursorY = `[92]
+
+`[93] + _cursorX, c); // Insert the char
+
+`[94]
+}
+}
+
+void `[95]
+{
+`[13] int i = 0; i < `[82] ++i)
+{
+Selection &sel = `[83]
+
+for(int y = `[57] - 1; y >= 0; --y)
+{
+for(int x = `[84] - 1; x >= 0; --x)
+{
+`[85] y, sel))
+{
+`[86] + x);
+`[87] <= 0)
+{
+`[88] + y);
+}
+}
+}
+
+`[87] <= 0)
+`[88] + y);
+}
+
+std::cout << sel.end.y - `[6] << std::endl;
+
+`[96] - `[6] > 0 && `[6] + 1 < `[61]
+{
+std::cout << "Deleting shit" << std::endl;
+unsigned int oldSize = `[97] + `[98]
+
+// Move current line above
+`[13] int x = 0; x < `[97] + `[98] ++x)
+// We can push since we're appending to the end of the line
+`[97] - `[99]
+
+// Remove old line
+`[88] + `[100]
+}
+
+`[101] = `[102]
+`[103] = `[104]
+}
+
+`[89]
+
+`[13] int i = 0; i < `[90] ++i)
+{
+int &_cursorX = `[91] &_cursorY = `[92]
+
+`[65] > 0)
+{
+// std::cout << "Removing char at (" << (_cursorX - 1) << ", " << _cursorY << ")" << std::endl;
+`[105] + (_cursorX - 1));
+`[106]
+}
+else
+{
+// Make sure we're not moving stuff to line -1
+`[56] > 0)
+{
+unsigned int oldSize = `[107] - `[98]
+
+// Move current line above
+`[13] int x = 0; x < `[67] ++x)
+// We can push since we're appending to the end of the line
+`[107] - `[108]
+
+// Remove old line
+`[88] + _cursorY);
+
+`[109]
+_cursorX = oldSize;
+}
+}
+}
+}
+
+void `[110] s)
+{
+`[111]
+`[112]
+
+`[89]
+
+`[13] int i = 0; i < `[90] ++i)
+{
+int &_cursorX = `[91] &_cursorY = `[92]
+
+`[113] ss;
+`[13] int i = 0; i < _tabLen; ++i)
+ss << ' ';
+
+`[114] "\t", ss.str());
+`[13] int i = 0; i < s.length(); ++i)
+{
+if(s[i] == '\n')
+{
+`[115]
+continue;
+}
+
+`[116]
+}
+}
+}
+
+void `[117]
+{
+`[13] int i = 0; i < `[90] ++i)
+{
+int &_cursorX = `[91] &_cursorY = `[92]
+
+`[118] + (_cursorY + 1), new `[119]
+
+// Move the rest of the current line to the one below
+`[74]
+`[13] int x = _cursorX - 1; x < `[67] ++x)
+`[107] + `[108]
+
+`[13] int x = _cursorX - 1; x < `[120] // No need to increment x, as we are deleting chars
+`[105] + x);
+
+`[121]
+
+_cursorX = 0;
+}
+
+_scrollX = 0;
+}
+
+void `[122] dir)
+{
+// True = up, false = down
+if(dir && _scrollY >= 3)
+_scrollY -= 3;
+else if(dir && _scrollY < 3)
+_scrollY = 0;
+else if(!dir && _scrollY < `[57] - (_target->h / `[123] && `[57] >= _target->h / `[60] + 3)
+{
+_scrollY += 3;
+}
+// std::cout << "Scrolling" << std::endl;
+}
+
+void `[124] *c, int x, int y)
+{
+int cY = y / `[125] - 1) + _scrollY, cX = 0;
+
+if(cY >= `[61]
+cY = `[57] - 1;
+
+int scrollW, __y;
+char `[126] + 1];
+`[13] int i = 0; i < _scrollX; ++i)
+{
+line[i] = `[127]
+}
+`[128] = '\0';
+`[28] line, &scrollW, &__y);
+
+int last = 0;
+bool found = false;
+`[13] int i = 0; i < `[129] ++i)
+{
+int xcpy = x + scrollW + (_scrollX) * _spacing;
+std::string str;
+`[13] int i2 = 0; i2 < i; ++i2)
+{
+`[113] ss;
+ss << `[130]
+`[131]
+}
+
+int newX, newY;
+`[28] `[132] &newX, &newY);
+
+xcpy -= `[133] + 1) * 7 + 4 + 2) + i * _spacing;
+if(xcpy >= last - _spacing && xcpy < newX)
+{
+cX = i - 1;
+
+found = true;
+break;
+}
+
+last = newX;
+}
+
+c->x = (found ? cX : (x - `[133] + 1) * 7 + 4 + 2) <= 0 ? 0 : `[134]
+c->y = cY;
+// std::cout << "Moved cursor to (" << _cursorX << ", " << _cursorY << ")" << std::endl;
+}
+
+int lastX, lastY;
+void `[135] &ev, bool dir)
+{
+`[136]
+return;
+
+`[137]
+{
+case `[138]
+`[139]
+`[140] + 1);
+else
+`[141]
+
+break;
+case `[142]
+`[139]
+`[140] - 1);
+else
+`[143]
+
+break;
+case `[144]
+if(dir)
+{
+`[145] && !shiftDown)
+{
+`[89]
+
+Cursor c;
+`[146] ev.x - _posX, ev.y - _posY);
+lastX = c.x; lastY = c.y;
+`[147]
+`[148]
+`[149] ev.x - _posX, ev.y - _posY);
+
+`[150] - _scrollX < 6)
+_scrollX -= 6;
+
+if(_scrollX < 0)
+_scrollX = 0;
+
+`[151] - _scrollX) >= _target->w / _fontWidth - 12 && _scrollX < `[152]
+`[75]
+
+if(_scrollX > `[153] - 15)
+_scrollX = `[153] - 15;
+}
+else `[154]
+{
+//*
+`[89]
+
+Cursor c;
+`[146] ev.x - _posX, ev.y - _posY);
+Selection sel;
+`[155]
+`[156] = `[157] - 1];
+`[158] = c;
+
+// Swap them if start is greater than end
+`[159] > `[160] || `[161] == `[162] && `[163] > `[164]
+{
+Cursor _s = `[165]
+`[156] = `[166]
+`[158] = _s;
+}
+
+std::cout << "Selection from (" << `[163] << ", " << `[167] << ") to (" << `[168] << ", " << `[162] << ")" << std::endl;
+//*/
+}
+else `[139]
+{
+`[89]
+
+Cursor c;
+`[146] ev.x - _posX, ev.y - _posY);
+`[148]
+}
+else
+{
+`[89]
+
+Cursor c;
+`[146] ev.x - _posX, ev.y - _posY);
+Selection sel;
+sel.start = c;
+`[155]
+`[169] - 1]), ev.x - _posX, ev.y - _posY);
+}
+}
+else
+{
+`[170] && !ctrlDown)
+{
+`[147]
+Cursor c;
+`[146] ev.x - _posX, ev.y - _posY);
+
+if(lastX != c.x || lastY != c.y)
+{
+Selection sel;
+sel.start.x = lastX - 1;
+`[6] = lastY;
+sel.end = c;
+`[155]
+}
+else
+`[89]
+
+`[148]
+}
+}
+
+break;
+default:
+break;
+}
+
+
+_hlLines = `[31]
+`[32] `[171] _scrollY, _scrollY + _target->h / `[60] + 5);
+`[36]
+}
+
+void `[172] &key, bool dir)
+{
+`[136]
+return;
+
+// Toggle capslock
+`[173] == `[174]
+{
+_capslock = !_capslock;
+return;
+}
+
+// Get the name of the key
+char kName = (char) `[175]
+/*
+`[176]
+`[177]
+//*/
+
+if(dir) // DOWN
+{
+`[173] == SDLK_DOWN)
+{
+`[89]
+
+int cX = `[157] - 1].x, cY = `[157] - 1].y;
+`[147]
+`[178] cY));
+`[179]
+}
+else `[173] == SDLK_LEFT)
+{
+`[89]
+
+int cX = `[157] - 1].x, cY = `[157] - 1].y;
+`[147]
+`[178] cY));
+`[180]
+}
+else `[173] == SDLK_RIGHT)
+{
+`[89]
+
+int cX = `[157] - 1].x, cY = `[157] - 1].y;
+`[147]
+`[178] cY));
+`[181]
+}
+else `[173] == SDLK_UP)
+{
+`[89]
+
+int cX = `[157] - 1].x, cY = `[157] - 1].y;
+`[147]
+`[178] cY));
+`[182]
+}
+else `[173] == `[183]
+{
+`[112]
+}
+else `[173] == `[184]
+{
+`[115]
+}
+else `[173] == SDLK_TAB)
+{
+`[13] int i = 0; i < _tabLen; ++i)
+addChar(' ');
+}
+else `[173] == SDLK_LCTRL || `[185] == SDLK_RCTRL)
+{
+ctrlDown = true;
+}
+else `[173] == SDLK_s && ctrlDown)
+{
+`[186]
+}
+else `[173] == SDLK_v && ctrlDown)
+{
+`[187]
+}
+else `[173] == SDLK_F1)
+{
+_debug = !_debug;
+}
+else `[173] == SDLK_LSHIFT || `[185] == `[188]
+{
+shiftDown = true;
+}
+else `[173] == SDLK_RALT || `[185] == SDLK_LALT)
+{
+altDown = true;
+}
+else `[173] == `[174] {}
+else
+{
+// Get the unicode char
+`[145] && !altDown && kName < 0x80 && kName > 0)
+{
+`[189]
+}
+else
+{
+}
+}
+
+_hlLines = `[31]
+`[32] `[171] _scrollY, _scrollY + _target->h / `[60] + 5);
+`[36]
+}
+else // UP
+{
+// std::cout << "Key " << (int) `[185] << " AKA '" << `[190] << "' was released." << std::endl;
+`[173] == SDLK_LCTRL || `[185] == SDLK_RCTRL)
+{
+ctrlDown = false;
+}
+else `[173] == SDLK_LSHIFT || `[185] == `[188]
+{
+shiftDown = false;
+}
+else `[173] == SDLK_LALT || `[185] == SDLK_RALT)
+{
+altDown = false;
+}
+}
+}
+
+void `[191]
+{
+std::cout << "Saving" << std::endl;
+`[192] `[193]
+
+`[13] int y = 0; y < `[14] ++y)
+{
+`[13] int x = 0; x < `[194] ++x)
+{
+file << `[195]
+}
+
+file << std::endl;
+}
+
+`[196]
+}
+
+void `[197] *path)
+{
+`[198]
+`[147]
+`[89]
+`[34] 0));
+
+std::cout << "Loading file '" << path << "'" << std::endl;
+_curFile = `[199]
+
+`[200] `[193]
+
+`[201]
+{
+std::cout << "Unable to load file '" << `[202] << "'";
+`[17] CharList);
+return;
+}
+
+int y = 0;
+`[203] line; `[204] line);)
+{
+`[17] CharList);
+
+`[13] int i = 0; i < `[205] ++i)
+`[206] - `[207]
+}
+
+`[196]
+}
+
+`[208] `[209]
+{
+`[208] l;
+`[13] int y = 0; y < `[14] ++y)
+{
+char `[210] + 1];
+
+`[13] int x = 0; x < `[194] ++x)
+{
+line[x] = `[195]
+}
+
+`[211] = '\0';
+`[212]
+}
+
+return l;
+}
+
+void `[213]
+{
+`[136]
+return;
+
+`[13] int i = 0; i < `[90] ++i)
+{
+`[214] >= `[61]
+`[103] = `[57] - 1;
+}
+
+`[215]
+`[216] > 80)
+{
+`[217] = `[218]
+_caretWait = 0;
+}
+
+`[217] = true;
+}
+
+void `[219]
+{
+`[136]
+return;
+
+`[220] 0, `[221] `[222] `[223] `[224]
+`[208] &lines = _hlLines;
+
+`[225]
+`[27]
+
+int lnDigits = `[226] + 1);
+char `[227] = `[228] 10);
+
+SDL_Rect lnRectDst;
+lnRectDst.x = lnRectDst.y = 0;
+int x, _unusedY;
+`[229] `[230] &x, &_unusedY);
+lnRectDst.w = x + 6;
+lnRectDst.h = `[231] * _fontSize < _target->h ? _target->h : `[57] * `[24]
+`[220] &lnRectDst, `[221] `[232] - 20, `[233] - 20, `[234] - 20));
+
+`[13] int y = 0; y < `[235] ++y)
+{
+int lX, lY;
+char line[2];
+line[0] = '1';
+line[1] = '\0';
+`[28] line, &lX, &lY);
+
+char *l = itoa(y + 1, 10);
+
+`[236] `[237] + 40, `[238] + 40, `[239] + 40, 255);
+`[236] `[240] - 20, `[233] - 20, `[234] - 20, 255);
+`[13] int i = 0; i < lnDigits; ++i)
+{
+`[241]
+int w, __h;
+`[229] `[242] i).c_str(), &w, &__h);
+`[243] w + 2, (y - _scrollY) * (lY - 1), c, bgC);
+}
+
+
+`[244] curLine = `[245] `[246]
+`[13] int x = _scrollX; x < `[247] ++x)
+{
+char line[x - _scrollX + 1];
+`[13] int i = 0; i < x; ++i)
+{
+line[i] = `[248] + _scrollX];
+}
+line[x - _scrollX] = '\0';
+`[28] line, &lX, &lY);
+// std::cout << lY << std::endl;
+
+/*
+if(x == _scrollX)
+{
+char *l = itoa(y + 1, 10);
+
+`[236] `[237] + 40, `[238] + 40, `[239] + 40, 255);
+`[236] `[240] - 20, `[233] - 20, `[234] - 20, 255);
+`[13] int i = 0; i < lnDigits; ++i)
+{
+`[241]
+int w, __h;
+`[229] `[242] i).c_str(), &w, &__h);
+`[243] w + 2, (y - _scrollY) * (lY - 1), c, bgC);
+`[27]
+}
+}
+//*/
+
+bool inSel;
+`[13] int i = 0; i < `[82] ++i)
+{
+inSel = `[249] y, `[250]
+
+if(inSel) break;
+}
+
+Color `[251] + 20, `[233] + 20, `[234] + 20, 255);
+
+// std::cout << (int) (lX + x * _spacing + 2 + `[252] << " vs. " << (int) (lX + x * _spacing + 2 + lnRectDst.w - scrollW) << std::endl;
+`[253] (int) (lX + (x - _scrollX) * _spacing + 2 + `[254] (int) ((y - _scrollY) * (lY - 1)), `[255] (inSel ? selBg : `[256] _spacing);
+}
+}
+
+// Draw the caret
+`[257]
+{
+`[13] int i = 0; i < `[90] ++i)
+{
+int &_cursorX = `[91] &_cursorY = `[92]
+
+int lX, lY;
+
+char `[258] - _scrollX + 1];
+`[13] int i = 0; i < _cursorX; ++i)
+{
+if(i + _scrollX >= `[66]
+break;
+
+line[i] = `[259] + _scrollX];
+}
+`[258] - _scrollX] = '\0';
+
+`[28] line, &lX, &lY);
+
+if(_debug)
+{
+// Draw some reference lines
+`[236] col(255, 0, 0, 255);
+`[260] 0, (_cursorY - _scrollY) * `[125] - 1), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * `[125] - 1), col);
+
+col.r = 0;
+col.b = 255;
+`[260] 0, (_cursorY - _scrollY) * `[125] - 1) + `[125] - 2), lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * `[125] - 1) + `[125] - 1), col);
+
+col.b = 0;
+col.g = 255;
+`[260] lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, 0, lX + _cursorX * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * `[125] - 1), col);
+}
+
+// std::cout << "Drawing caret at y " << (_cursorY - _scrollY) * `[125] - 2) << " vs " << (_cursorY - _scrollY) * `[125] - 2) + `[125] - 2) << std::endl;
+`[260] lX + (_cursorX - _scrollX) * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * `[125] - 1), lX + (_cursorX - _scrollX) * _spacing + 2 + lnRectDst.w - _spacing / 2, (_cursorY - _scrollY) * `[125] - 1) + `[125] - 2), `[261]
+}
+}
+
+SDL_Rect pos;
+pos.x = _posX;
+pos.y = _posY;
+`[262] 0, _screen, &pos);
+`[263]
+}
+}
