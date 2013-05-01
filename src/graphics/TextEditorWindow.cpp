@@ -281,6 +281,17 @@ namespace graphics
                 }
             }
 
+            if(sel.end.y > sel.start.y)
+            {
+                // Move current line above
+                for(unsigned int x = 0; x < _lines[sel.start.y + 1]->size(); ++x)
+                    // We can push since we're appending to the end of the line
+                    _lines[sel.start.y]->push_back((*(_lines[sel.start.y + 1]))[x]);
+
+                // Remove old line
+                _lines.erase(_lines.begin() + sel.start.y + 1);
+            }
+
             _cursors[i].x = sel.start.x;
             _cursors[i].y = sel.start.y;
             skips.push_back(i);
