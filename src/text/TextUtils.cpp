@@ -137,6 +137,44 @@ namespace text
             return "";
         }
 
+        bool setClipboardData(std::string s)
+        {
+            #ifdef WIN32
+
+            CString str;
+            str = s.c_str();
+            if(OpenClipboard())
+            {
+                HGLOBAL clipbuffer;
+                char *buffer;
+                EmptyClipboard();
+                clipbuffer = GlobalAlloc(GMEM_DDESHARE, str.GetLength() + 1);
+                buffer = (char*) GlobalLock(clipbuffer);
+                strcpy(buffer, LPCSTR(str));
+                GlobalUnlock(clipbuffer);
+                SetClipboardData(CF_TEXT,clipbuffer);
+                CloseClipboard();
+            }
+            else
+            {
+                return false;
+            }
+
+            return true;
+
+            #else
+
+            std::stringstream cmd;
+            cmd << "echo \"" << s.c_str() << "\" | xclip -selection c";
+            FILE *pipe = popen(cmd.str().c_str(), "r");
+            if (!pipe) return false;
+
+            pclose(pipe);
+            return true;
+
+            #endif
+        }
+
         bool replace_str(std::string &str, std::string from, std::string to)
         {
             size_t start_pos = str.find(from);

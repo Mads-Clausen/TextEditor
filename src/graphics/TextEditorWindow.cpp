@@ -373,6 +373,30 @@ namespace graphics
         }
     }
 
+    void TextEditorWindow::copyText()
+    {
+        if(_selections.size() <= 0) return;
+
+        std::stringstream s;
+
+        for(unsigned int y = 0; y < _lines.size(); ++y)
+        {
+            for(unsigned int x = 0; x < _lines[y]->size(); ++x)
+            {
+                if(inSelection(x, y, _selections[0]))
+                {
+                    if(x == 0)
+                        s << '\n';
+
+                    s << (*(_lines[y]))[x];
+                }
+            }
+        }
+
+        if(!setClipboardData(s.str()))
+            std::cout << "Unable to set clipboard data." << std::endl;
+    }
+
     void TextEditorWindow::addLine()
     {
         for(unsigned int i = 0; i < _cursors.size(); ++i)
@@ -666,6 +690,10 @@ namespace graphics
             else if(key.keysym.sym == SDLK_v && ctrlDown)
             {
                 this->insertText(text::TextUtils::getClipboardData());
+            }
+            else if(key.keysym.sym == SDLK_c && ctrlDown)
+            {
+                this->copyText();
             }
             else if(key.keysym.sym == SDLK_F1)
             {

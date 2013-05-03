@@ -104,6 +104,8 @@ function onWindowLoad()
 		window[this.id] = new NavigationElement(this.getAttribute("name"), this.id);
 	});
 
+	$(elems[0]).css("margin-top", "0px");
+
 	elems = $(".navbar_element");
 	$(elems[0]).addClass("navbar_element_active", 0);
 	currentNavbarEl = elems[0].id;

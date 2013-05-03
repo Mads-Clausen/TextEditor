@@ -18,8 +18,7 @@ unsigned int frame;
 
 int main(int argc, char **argv)
 {
-    // Lolololololo made from the editor itself
-    if(!graphics::GraphicsManager::init("Da VIMci", 800, 600) || !graphics::FontRenderer::init())
+    if(!graphics::GraphicsManager::init("Da VIMci", 1024, 900) || !graphics::FontRenderer::init())
         return false;
 
     update.start();

@@ -206,6 +206,11 @@ namespace graphics
                 _posX = x;
                 _posY = y;
             }
+
+            /**
+             * Copies text to the clipboard
+             */
+            void copyText();
     };
 }
 

@@ -4,6 +4,17 @@
 	text-rendering: geometricPrecision;
 }
 
+a, a:visited, a:link
+{
+	color: #0098DA;
+	text-decoration: none;
+}
+
+a:hover
+{
+	color: #F07C00;
+}
+
 .main_body
 {
 	padding-left: 20px;
@@ -17,7 +28,7 @@
 
 .main_section
 {
-	margin-top: 30px;
+	margin-top: 40px;
 	width: 100%;
 }
 

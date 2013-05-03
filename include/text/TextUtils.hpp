@@ -28,6 +28,15 @@ namespace text
         std::string getClipboardData();
 
         /**
+         * Sets the data in clipboard.
+         *
+         * @param s The new string
+         *
+         * @return Success?
+         */
+        bool setClipboardData(std::string s);
+
+        /**
          * Replaces a substring inside a main string with another substring.
          *
          * @param str The main string.
