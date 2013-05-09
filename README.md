@@ -22,16 +22,7 @@ External libraries used:
 For information about how to install and set up SDL 
 and SDL_ttf, visit http://lazyfoo.net/SDL_tutorials/lesson01/index.php
 
-Compilation instructions. These assume you have Code::Blocks installed
-and cofigured, and that you have installed SDL correctly:
-
-* Open the file 'TextEditor.cbp' in Code::Blocks(File -> Open -> TextEditor.cbp).
-* Go to "Settings -> Compiler & Debugger"
-	* Insert "-std=c++11" into "Compiler Settings -> Other options".
-	* Insert "-lSDL -lSDLmain -lSDL_ttf" into "Linker Settings -> Other linker options".
-	* Make sure that "<folder/you/downloaded/to>/include/" is listed in "Search Directories".
-* Press "Build".
-* Press "Run".
+For information about compiling for specific platforms, see COMPILING.md
 
 If you are on Linux, you will also need to install xclip:
 ```
@@ -53,3 +44,4 @@ Known bugs
 ==========
 
 None, currently.
+For newest bugs, see the "Issues" tab.

@@ -121,7 +121,7 @@ namespace text
 
             FILE *pipe = popen("xclip -o", "r");
             if (!pipe) return "";
-            char buffer[65536]; // Should be plenty of space
+            char buffer[65536];
             std::string result = "";
             while(!feof(pipe))
             {

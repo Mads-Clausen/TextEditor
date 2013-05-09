@@ -79,4 +79,15 @@ a:hover
 .navbar_element_active
 {
 	background-color: #EEEEEE;
-};
+}
+
+a.f_link, a.f_link:active, a.f_link:visited, a.f_link:hover
+{
+    color: #0098DF;
+}
+
+div.f_link_con
+{
+    margin-top: 10px;
+    border-top: 1px solid black;
+}
