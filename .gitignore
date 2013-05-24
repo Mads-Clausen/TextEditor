@@ -18,6 +18,9 @@
 bin/
 obj/
 
+# Website shit
+website/
+
 # Github files
 .git/
 
